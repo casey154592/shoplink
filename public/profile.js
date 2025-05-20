@@ -17,17 +17,19 @@ document.addEventListener('DOMContentLoaded', function() {
             event.preventDefault();
             postLoading.style.display = 'block';
             postSubmitBtn.disabled = true;
-            const content = document.getElementById('post-content').value;
+
+            const formData = new FormData(postForm);
+            formData.append('email', user.email);
+
             try {
                 const response = await fetch('/api/posts', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: user.email, content })
+                    body: formData
                 });
                 const result = await response.json();
                 if (response.ok) {
                     alert('Post created!');
-                    document.getElementById('post-content').value = '';
+                    postForm.reset();
                 } else {
                     alert('Post failed: ' + (result.message || 'Unknown error'));
                 }

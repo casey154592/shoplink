@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Feed - Shoplink</title>
+    <link rel="stylesheet" href="./css.style/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="feed-container">
+        <div class="feed-header">
+            <h1>Shoplink</h1>
+            <button id="search-toggle" class="search-toggle">
+                <i class="fa fa-search"></i>
+            </button>
+            <input type="text" id="search-bar" class="search-bar" placeholder="Search posts..." style="display:none;">
+            <div class="header-icons">
+                <button id="chat-btn" class="chat-btn" title="Chat">
+                    <i class="fa fa-comments"></i>
+                </button>
+                <button id="cart-btn" class="cart-btn" title="Cart">
+                    <i class="fa fa-shopping-cart"></i>
+                    <span id="cart-badge" class="cart-badge" style="display:none;">0</span>
+                </button>
+                <button id="notification-btn" class="notification-btn" title="Notifications">
+                    <i class="fa fa-bell"></i>
+                    <span id="notification-badge" class="notification-badge" style="display:none;">1</span>
+                </button>
+            </div>
+        </div>
+        <div id="feed-posts"></div>
+    </div>
+
+    <!-- Slide-in Side Menu -->
+    <div id="side-menu" class="side-menu">
+        <button id="close-menu" class="close-menu">&times;</button>
+        <div class="profile-info">
+            <div class="profile-pic-wrapper">
+                <img id="side-profile-pic" src="" alt="Profile Picture" />
+                <span class="profile-pic-icon"><i class="fa fa-user"></i></span>
+            </div>
+            <h3 id="side-profile-username"></h3>
+            <p id="side-profile-email"></p>
+            <p id="side-profile-role"></p>
+            <p id="side-profile-bio"></p>
+        </div>
+        <a href="index.html"><i class="fa fa-home"></i> Home</a>
+        <a href="profile.html"><i class="fa fa-user-edit"></i> Edit Profile</a>
+        <a href="cart.html"><i class="fa fa-shopping-cart"></i> Cart</a>
+        <a href="./"><i class="fa fa-envelope"></i> Email us</a>
+        <button id="side-logout-btn" class="side-logout-btn">Logout</button>
+    </div>
+    <button id="open-menu" class="open-menu">&#9776;</button>
+
+    <script src="./feed.js"></script>
+</body>
+</html>

@@ -42,8 +42,9 @@
 
     <div id="post-section" style="display:none;">
         <h2>Create a Post</h2>
-        <form id="post-form">
+        <form id="post-form" enctype="multipart/form-data">
             <textarea id="post-content" name="content" rows="3" placeholder="Write your post..." required></textarea>
+            <input type="file" id="post-video" name="video" accept="video/*">
             <button type="submit" id="post-submit-btn">Post</button>
             <div id="post-loading" style="display:none; color:#833ab4; text-align:center; margin-top:10px;">Posting...</div>
         </form>

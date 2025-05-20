@@ -54,33 +54,33 @@ document.addEventListener('scroll', function() {
     hero.style.opacity = opacity;
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-    const signupForm = document.getElementById('signup-form');
-    if (signupForm) {
-        signupForm.addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const formData = new FormData(signupForm);
-            const data = Object.fromEntries(formData.entries());
-            try {
-                const response = await fetch('/api/signup', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    alert('Sign-up successful! Welcome, ' + result.username + ' (' + result.role + ')');
-                    signupForm.reset();
-                    window.location.href = 'index.html';
-                } else {
-                    alert('Sign-up failed: ' + (result.message || 'Unknown error'));
-                }
-            } catch (err) {
-                alert('Network error');
-            }
-        });
-    }
-});
+// document.addEventListener('DOMContentLoaded', function() {
+//     const signupForm = document.getElementById('signup-form');
+//     if (signupForm) {
+//         signupForm.addEventListener('submit', async function(event) {
+//             event.preventDefault();
+//             const formData = new FormData(signupForm);
+//             const data = Object.fromEntries(formData.entries());
+//             try {
+//                 const response = await fetch('/api/signup', {
+//                     method: 'POST',
+//                     headers: { 'Content-Type': 'application/json' },
+//                     body: JSON.stringify(data)
+//                 });
+//                 const result = await response.json();
+//                 if (response.ok) {
+//                     alert('Sign-up successful! Welcome, ' + result.username + ' (' + result.role + ')');
+//                     signupForm.reset();
+//                     window.location.href = 'index.html';
+//                 } else {
+//                     alert('Sign-up failed: ' + (result.message || 'Unknown error'));
+//                 }
+//             } catch (err) {
+//                 alert('Network error');
+//             }
+//         });
+//     }
+// });
 
 document.addEventListener('DOMContentLoaded', function() {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -103,5 +103,82 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+document.addEventListener('DOMContentLoaded', function() {
+    const imgContainers = document.querySelectorAll('.services__img-container');
+
+    function checkVisibility() {
+        imgContainers.forEach(container => {
+            const rect = container.getBoundingClientRect();
+            if (
+                rect.top < window.innerHeight - 60 && // 60px offset for earlier reveal
+                rect.bottom > 0
+            ) {
+                container.classList.add('visible');
+            } else {
+                container.classList.remove('visible');
+            }
+        });
+    }
+
+    // Initial check
+    checkVisibility();
+
+    // On scroll and resize
+    window.addEventListener('scroll', checkVisibility);
+    window.addEventListener('resize', checkVisibility);
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const icons = document.querySelectorAll('.main__img--animation .shop-icon');
+    const cursor = document.querySelector('.main__img--animation .cursor-icon');
+    if (!icons.length || !cursor) return;
+
+    let index = 0;
+    function animateCursor() {
+        icons.forEach((icon, i) => icon.classList.remove('active'));
+        icons[index].classList.add('active');
+
+        // Position cursor near the active icon
+        const iconRect = icons[index].getBoundingClientRect();
+        const parentRect = icons[index].parentElement.getBoundingClientRect();
+        cursor.style.top = (icons[index].offsetTop + 8) + 'px';
+        cursor.style.left = '70%';
+        cursor.style.opacity = 1;
+
+        // "Click" effect
+        cursor.classList.add('clicking');
+        setTimeout(() => {
+            cursor.classList.remove('clicking');
+            cursor.style.opacity = 0;
+            index = (index + 1) % icons.length;
+            setTimeout(animateCursor, 700);
+        }, 500);
+    }
+
+    animateCursor();
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate "Shoplink" text in iPad frame
+    const ipadTitle = document.getElementById('ipad-app-title');
+    if (ipadTitle) {
+        const text = "Shoplink";
+        let i = 0;
+        function animateText() {
+            ipadTitle.textContent = text.substring(0, i);
+            i++;
+            if (i <= text.length) {
+                setTimeout(animateText, 180);
+            } else {
+                setTimeout(() => {
+                    i = 0;
+                    animateText();
+                }, 1200);
+            }
+        }
+        animateText();
+    }
+});
+
+
 
