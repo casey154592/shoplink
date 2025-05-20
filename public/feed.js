@@ -1,11 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Check if user is logged in
     const user = JSON.parse(localStorage.getItem('user'));
-    // if (!user) {
-    //     // alert('You must be logged in to view the feed.');
-    //     window.location.href = 'index.html';
-    //     return;
-    // }
+    if (!user) {
+        window.location.href = 'login.html'; // Or your login page
+        return;
+    }
 
     // Fetch posts and store them for searching
     let allPosts = [];
