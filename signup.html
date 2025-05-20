@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Shoplink</title>
+    <link rel="stylesheet" href="./css.style/style.css">
+</head>
+<body>
+    <div class="signup-container">
+        <h1>Create an Account</h1>
+        <h2>Shoplink</h2>
+        <form id="signup-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <br>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <br>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <br>
+            <div class="form-group">
+                <label for="role">Register as</label>
+                <br>
+                <select id="role" name="role" required>
+                    <option value="">Select role</option>
+                    <option value="CEO">CEO</option>
+                    <option value="Customer">Customer</option>
+                </select>
+            </div>
+            <button type="submit">Sign Up</button>
+        </form>
+        <p class="message">Already have an account? <a href="index.html">Log in</a></p>
+    </div>
+    <script src="./index.js/index.js"></script>
+</body>
+</html>
