@@ -21,4 +21,26 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    document.getElementById('google-login').onclick = async function() {
+        // Simulate Google login and get email (replace with real Google OAuth in production)
+        const email = prompt("Enter your Google email for demo:"); // Replace with real Google email
+        if (!email) return alert('Email is required.');
+
+        // Send request to backend to send verification code
+        const res = await fetch('/api/login/google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            // Store email in localStorage for verification step
+            localStorage.setItem('pendingGoogleEmail', email);
+            // Redirect to code verification page
+            window.location.href = 'codeverification.html';
+        } else {
+            alert(data.message || 'Failed to start Google login.');
+        }
+    };
 });

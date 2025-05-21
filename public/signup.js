@@ -25,4 +25,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    document.getElementById('google-signup').onclick = async function() {
+        // Use Google API to get token, here we simulate
+        const role = document.getElementById('role').value;
+        if (!role) return alert('Please select a role.');
+        // Simulate Google token
+        const googleToken = 'fake-google-token';
+        const res = await fetch('/api/signup/google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ googleToken, role })
+        });
+        const data = await res.json();
+        document.getElementById('welcome-message').innerHTML =
+            data.message + `<br><a href="${data.continueUrl}">Continue to site</a>`;
+    };
 });

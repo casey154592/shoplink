@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - Shoplink</title>
     <link rel="stylesheet" href="./css.style/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="signup-container">
@@ -29,14 +30,24 @@
             <div class="form-group">
                 <label for="role">Register as</label>
                 <br>
-                <select id="role" name="role" required>
-                    
+                <select name="role" id="role" required>
+                    <option value="">Select Role</option>
                     <option value="CEO">CEO</option>
-                    <option value="Customer">Customer</option>
+                    <option value="CUSTOMER">Customer</option>
                 </select>
             </div>
             <button type="submit">Sign Up</button>
+            <button type="button" id="google-signup">
+                <i class="fab fa-google"></i> Continue with Google
+            </button>
+            <button type="button" id="facebook-signup">
+                <i class="fab fa-facebook"></i> Continue with Facebook
+            </button>
+            <button type="button" id="apple-signup">
+                <i class="fab fa-apple"></i> Continue with Apple
+            </button>
         </form>
+        <div id="welcome-message"></div>
         <p class="message">Already have an account? <a href="index.html">Log in</a></p>
     </div>
     <script src="./signup.js"></script>

@@ -1032,6 +1032,54 @@ a{
     display: block;
 }
 
+/* Add to your style.css for signup.html button styling */
+
+#signup-form button[type="button"] {
+    display: block;
+    width: 100%;
+    margin: 12px 0;
+    padding: 0.7rem 0;
+    font-size: 1.05rem;
+    border: none;
+    border-radius: 6px;
+    background: #fff;
+    color: #232323;
+    box-shadow: 0 2px 12px rgba(131, 58, 180, 0.08);
+    transition: background 0.2s, color 0.2s;
+    cursor: pointer;
+    text-align: left;
+    padding-left: 2.2rem;
+    position: relative;
+}
+
+#signup-form button[type="button"] i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+}
+
+#signup-form button#google-signup {
+    border: 2px solid #db4437;
+    box-shadow: 0 4px 18px rgba(219, 68, 55, 0.13);
+}
+
+#signup-form button#facebook-signup {
+    border: 2px solid #4267B2;
+    box-shadow: 0 4px 18px rgba(66, 103, 178, 0.13);
+}
+
+#signup-form button#apple-signup {
+    border: 2px solid #232323;
+    box-shadow: 0 4px 18px rgba(35, 35, 35, 0.13);
+}
+
+#signup-form button[type="button"]:hover {
+    background: #fcb845;
+    color: #fff;
+}
+
 /* Login Form Styles */
 .signup-container2 {
     max-width: 400px;
@@ -1570,6 +1618,135 @@ a{
     font-size: 0.8rem;
     font-weight: bold;
     display: inline-block;
+}
+
+/* Style for social login buttons on the login form */
+#login-form button[type="button"] {
+    display: block;
+    width: 100%;
+    margin: 12px 0;
+    padding: 0.7rem 0;
+    font-size: 1.05rem;
+    border: none;
+    border-radius: 6px;
+    background: #fff;
+    color: #232323;
+    box-shadow: 0 2px 12px rgba(131, 58, 180, 0.08);
+    transition: background 0.2s, color 0.2s;
+    cursor: pointer;
+    text-align: left;
+    padding-left: 2.2rem;
+    position: relative;
+}
+
+#login-form button[type="button"] i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+}
+
+#login-form button#google-login {
+    border: 2px solid #db4437;
+    box-shadow: 0 4px 18px rgba(219, 68, 55, 0.13);
+}
+
+#login-form button#facebook-login {
+    border: 2px solid #4267B2;
+    box-shadow: 0 4px 18px rgba(66, 103, 178, 0.13);
+}
+
+#login-form button#apple-login {
+    border: 2px solid #232323;
+    box-shadow: 0 4px 18px rgba(35, 35, 35, 0.13);
+}
+
+#login-form button[type="button"]:hover {
+    background: #fcb845;
+    color: #fff;
+}
+
+/* Style for code verification page with 4 separate inputs */
+.verification-container {
+    max-width: 350px;
+    margin: 60px auto 0 auto;
+    background: #232323;
+    padding: 2rem 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(131,58,180,0.13);
+    color: #fff;
+    text-align: center;
+}
+
+.verification-container h2 {
+    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+    color: #fcb845;
+}
+
+#verify-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.code-inputs {
+    display: flex;
+    gap: 0.7rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.code-inputs input[type="text"] {
+    width: 48px;
+    height: 56px;
+    font-size: 2rem;
+    text-align: center;
+    border: 2px solid #833ab4;
+    border-radius: 8px;
+    background: #181818;
+    color: #fff;
+    outline: none;
+    transition: border 0.2s;
+}
+
+.code-inputs input[type="text"]:focus {
+    border: 2.5px solid #fcb845;
+    background: #232323;
+}
+
+#verify-form button,
+#resend-code {
+    width: 100%;
+    padding: 0.7rem 0;
+    border: none;
+    border-radius: 6px;
+    background: #833ab4;
+    color: #fff;
+    font-size: 1.05rem;
+    margin-top: 0.5rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#verify-form button:hover,
+#resend-code:hover {
+    background: #fcb845;
+    color: #232323;
+}
+
+#timer {
+    margin-top: 1rem;
+    color: #fd1d1d;
+    font-weight: bold;
+}
+
+#verify-message {
+    margin-top: 1rem;
+    color: #fd1d1d;
+    font-size: 1rem;
 }
 
 
