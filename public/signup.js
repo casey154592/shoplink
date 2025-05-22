@@ -27,18 +27,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     document.getElementById('google-signup').onclick = async function() {
-        // Use Google API to get token, here we simulate
+        // Simulate Google OAuth and get Gmail (replace with real OAuth in production)
+        const gmail = prompt("Enter your Google email for demo:");
         const role = document.getElementById('role').value;
-        if (!role) return alert('Please select a role.');
-        // Simulate Google token
-        const googleToken = 'fake-google-token';
+        if (!gmail || !role) return alert('Please enter your Gmail and select a role.');
+
         const res = await fetch('/api/signup/google', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ googleToken, role })
+            body: JSON.stringify({ gmail, role })
         });
         const data = await res.json();
-        document.getElementById('welcome-message').innerHTML =
-            data.message + `<br><a href="${data.continueUrl}">Continue to site</a>`;
+        if (res.ok) {
+            localStorage.setItem('userGmail', gmail);
+            alert('Welcome email sent! Check your Gmail for the link to continue.');
+            // Optionally, redirect to feed or wait for user to click the link in email
+            // window.location.href = 'feed.html';
+        } else {
+            alert(data.message || 'Signup failed.');
+        }
     };
 });

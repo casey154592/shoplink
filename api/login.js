@@ -22,19 +22,19 @@ router.post('/login', (req, res) => {
 });
 
 // Send code (Google login)
-router.post('/login/google', (req, res) => {
+router.post('/login/google', async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ message: 'Email required.' });
 
-    // Generate 4-digit code and expiry (1 minute from now)
+    // Generate code, save with expiry, send to Gmail
     const code = Math.floor(1000 + Math.random() * 9000).toString();
-    const expiresAt = Date.now() + 60 * 1000; // 1 minute in ms
+    const expiresAt = Date.now() + 60 * 1000;
     verificationCodes[email] = { code, expiresAt };
 
-    // TODO: Send code to user's email (use nodemailer in production)
+    // TODO: Send code to user's Gmail (use nodemailer in production)
     console.log(`Verification code for ${email}: ${code} (expires in 1 min)`);
 
-    res.json({ message: 'Verification code sent to your email.' });
+    res.json({ message: 'Verification code sent to your Gmail.' });
 });
 
 // Resend code endpoint

@@ -22,18 +22,18 @@ router.post('/signup', (req, res) => {
 });
 
 // Google signup
-router.post('/signup/google', (req, res) => {
-    const { googleToken, role } = req.body;
-    if (!googleToken || !role) {
-        return res.status(400).json({ message: 'Google token and role are required.' });
-    }
-    // Verify Google token here (use Google API)
-    // If valid:
-    // Send welcome notification and link (simulate with response)
-    res.json({
-        message: 'Welcome! Click the link to continue.',
-        continueUrl: '/feed.html'
-    });
+router.post('/signup/google', async (req, res) => {
+    const { gmail, role } = req.body;
+    if (!gmail || !role) return res.status(400).json({ message: 'Gmail and role required.' });
+
+    // TODO: Save user to DB if new, etc.
+
+    // TODO: Send welcome email with link to feed.html (use nodemailer in production)
+    // Example:
+    // await sendMail(gmail, 'Welcome to Shoplink', 'Click here to continue: https://yourdomain.com/feed.html');
+
+    console.log(`Sent welcome email to ${gmail} with link to feed.html`);
+    res.json({ message: 'Welcome email sent.' });
 });
 
 // Add similar endpoints for Facebook and Apple if needed
