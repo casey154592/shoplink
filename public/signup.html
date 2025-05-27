@@ -31,8 +31,9 @@
             <div class="form-group">
                 <label for="role">Register as</label>
                 <br>
-                 <label for="selectrole">Select Role</label>
+                 
                 <select name="role" id="role" required>
+                    <option value="selectrole">Select Role</option>
                     <option value="CEO">CEO</option>
                     <option value="CUSTOMER">Customer</option>
                 </select>
@@ -51,6 +52,10 @@
         <p class="message">Already have an account? <a href="index.html">Log in</a></p>
     </div>
     
+    <div id="popup-message" class="popup-message" style="display:none;">
+        <span id="popup-text"></span>
+        <button id="popup-close">&times;</button>
+    </div>
     
     <script src="./signup.js"></script>
     

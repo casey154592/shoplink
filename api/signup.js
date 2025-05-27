@@ -7,8 +7,8 @@ const router = express.Router();
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'kenechukwuobi5@gmail.com',      // your Gmail address
-        pass: 'vboj mdur immi uvqp'         // your Gmail app password (not your Gmail password!)
+        user: 'shoplink17@gmail.com',      // your Gmail address
+        pass: 'pvos zpxd gykr ysng'         // your Gmail app password (not your Gmail password!)
     }
 });
 const client = new OAuth2Client('842786956290-iupit5adg1633nr9ccbep7p9itpuec3v.apps.googleusercontent.com');
@@ -50,13 +50,13 @@ router.post('/signup/google', async (req, res) => {
 
     // Send welcome email with link to feed
     const mailOptions = {
-        from: '"Shoplink" <kenechukwuobi5@gmail.com>',
+        from: '"Shoplink" <shoplink17@gmail.com>',
         to: gmail,
         subject: 'Welcome to Shoplink!',
         html: `
             <h2>Welcome to Shoplink!</h2>
             <p>Thank you for signing up as a ${role}.</p>
-            <p><a href="https://yourdomain.com/feed.html">Click here to continue to your feed</a></p>
+            <p><a href="https://shoplink-h0jk.onrender.com/feed.html">Click here to continue</a></p>
         `
     };
 

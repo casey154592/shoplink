@@ -61,9 +61,21 @@ window.handleGoogleSignup = async function(response) {
     });
     const data = await res.json();
     if (res.ok) {
-        document.getElementById('welcome-message').innerHTML = 'Welcome email sent! Check your Gmail for the link to continue.';
+        showPopupMessage('Welcome email sent! Check your Gmail for the link to continue.');
         // Optionally, save Gmail to localStorage if needed
     } else {
-        alert(data.message || 'Signup failed.');
+        showPopupMessage(data.message || 'Signup failed.');
     }
+};
+
+function showPopupMessage(message) {
+    const popup = document.getElementById('popup-message');
+    const popupText = document.getElementById('popup-text');
+    popupText.textContent = message;
+    popup.style.display = 'flex';
+    // Auto-hide after 5 seconds
+    setTimeout(() => { popup.style.display = 'none'; }, 5000);
+}
+document.getElementById('popup-close').onclick = function() {
+    document.getElementById('popup-message').style.display = 'none';
 };
