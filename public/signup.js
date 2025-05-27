@@ -47,12 +47,28 @@ document.addEventListener('DOMContentLoaded', function() {
             alert(data.message || 'Signup failed.');
         }
     };
+
+    document.getElementById('role').addEventListener('change', function() {
+        const googleBtn = document.querySelector('.g_id_signin');
+        if (this.value === "selectrole") {
+            googleBtn.style.pointerEvents = 'none';
+            googleBtn.style.opacity = '0.5';
+        } else {
+            googleBtn.style.pointerEvents = 'auto';
+            googleBtn.style.opacity = '1';
+        }
+    });
+    // Initialize state on page load
+    document.getElementById('role').dispatchEvent(new Event('change'));
 });
 
 window.handleGoogleSignup = async function(response) {
     const id_token = response.credential;
     const role = document.getElementById('role').value;
-    if (!role) return alert('Please select a role before continuing with Google.');
+    if (!role || role === "selectrole") {
+        showPopupMessage('Please select a role (CEO or Customer) before continuing with Google.');
+        return;
+    }
 
     const res = await fetch('/api/signup/google', {
         method: 'POST',

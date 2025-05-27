@@ -36,7 +36,9 @@ router.post('/signup', (req, res) => {
 // Google signup
 router.post('/signup/google', async (req, res) => {
     const { id_token, role } = req.body;
-    if (!id_token || !role) return res.status(400).json({ message: 'ID token and role required.' });
+    if (!id_token || !role || !['CEO', 'CUSTOMER'].includes(role)) {
+        return res.status(400).json({ message: 'A valid role (CEO or Customer) is required.' });
+    }
 
     // Verify the token
     const ticket = await client.verifyIdToken({
