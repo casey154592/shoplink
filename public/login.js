@@ -22,23 +22,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    document.getElementById('google-login').onclick = async function() {
-        // Simulate Google OAuth and get Gmail (replace with real OAuth in production)
-        const gmail = prompt("Enter your Google email for demo:");
-        if (!gmail) return alert('Gmail is required.');
-
+    window.handleGoogleLogin = async function(response) {
+        const id_token = response.credential;
         const res = await fetch('/api/login/google', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: gmail })
+            body: JSON.stringify({ id_token })
         });
         const data = await res.json();
         if (res.ok) {
-            localStorage.setItem('pendingGoogleEmail', gmail);
-            // Only redirect if code was sent
-            window.location.href = 'codeverification.html';
+            // Optionally store user info in localStorage
+            window.location.href = 'feed.html';
         } else {
-            alert(data.message || 'Failed to send verification code.');
+            alert(data.message || 'Google login failed.');
         }
     };
 });

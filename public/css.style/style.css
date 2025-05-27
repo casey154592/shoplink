@@ -1160,7 +1160,7 @@ a{
 .signup-container2 .message {
     text-align: center;
     margin-top: 1rem;
-    color: #ff817f;
+    color: #fff;
     font-size: 1rem;
 }
 
@@ -1182,7 +1182,10 @@ a{
     box-shadow: 0 12px 40px 0 rgba(0,0,0,0.25);
     filter: brightness(1.08) saturate(1.1);
 }
+.signup-container2 p .message {
 
+}
+ 
 @media screen and (max-width: 768px) {
     .login-bg-container {
         min-height: 100vh;

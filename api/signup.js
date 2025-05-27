@@ -1,5 +1,17 @@
 const express = require('express');
+const nodemailer = require('nodemailer');
+const { OAuth2Client } = require('google-auth-library');
 const router = express.Router();
+
+// Configure your transporter (use real credentials in production)
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'kenechukwuobi5@gmail.com',      // your Gmail address
+        pass: 'vboj mdur immi uvqp'         // your Gmail app password (not your Gmail password!)
+    }
+});
+const client = new OAuth2Client('842786956290-iupit5adg1633nr9ccbep7p9itpuec3v.apps.googleusercontent.com');
 
 const users = []; // Replace with DB in production
 
@@ -23,17 +35,39 @@ router.post('/signup', (req, res) => {
 
 // Google signup
 router.post('/signup/google', async (req, res) => {
-    const { gmail, role } = req.body;
-    if (!gmail || !role) return res.status(400).json({ message: 'Gmail and role required.' });
+    const { id_token, role } = req.body;
+    if (!id_token || !role) return res.status(400).json({ message: 'ID token and role required.' });
+
+    // Verify the token
+    const ticket = await client.verifyIdToken({
+        idToken: id_token,
+        audience: '842786956290-iupit5adg1633nr9ccbep7p9itpuec3v.apps.googleusercontent.com'
+    });
+    const payload = ticket.getPayload();
+    const gmail = payload.email;
 
     // TODO: Save user to DB if new, etc.
 
-    // TODO: Send welcome email with link to feed.html (use nodemailer in production)
-    // Example:
-    // await sendMail(gmail, 'Welcome to Shoplink', 'Click here to continue: https://yourdomain.com/feed.html');
+    // Send welcome email with link to feed
+    const mailOptions = {
+        from: '"Shoplink" <kenechukwuobi5@gmail.com>',
+        to: gmail,
+        subject: 'Welcome to Shoplink!',
+        html: `
+            <h2>Welcome to Shoplink!</h2>
+            <p>Thank you for signing up as a ${role}.</p>
+            <p><a href="https://yourdomain.com/feed.html">Click here to continue to your feed</a></p>
+        `
+    };
 
-    console.log(`Sent welcome email to ${gmail} with link to feed.html`);
-    res.json({ message: 'Welcome email sent.' });
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Welcome email sent to ${gmail}`);
+        res.json({ message: 'Welcome email sent.' });
+    } catch (err) {
+        console.error('Email error:', err);
+        res.status(500).json({ message: 'Failed to send welcome email.' });
+    }
 });
 
 // Add similar endpoints for Facebook and Apple if needed

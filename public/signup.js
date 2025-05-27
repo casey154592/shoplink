@@ -48,3 +48,22 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 });
+
+window.handleGoogleSignup = async function(response) {
+    const id_token = response.credential;
+    const role = document.getElementById('role').value;
+    if (!role) return alert('Please select a role before continuing with Google.');
+
+    const res = await fetch('/api/signup/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_token, role })
+    });
+    const data = await res.json();
+    if (res.ok) {
+        document.getElementById('welcome-message').innerHTML = 'Welcome email sent! Check your Gmail for the link to continue.';
+        // Optionally, save Gmail to localStorage if needed
+    } else {
+        alert(data.message || 'Signup failed.');
+    }
+};

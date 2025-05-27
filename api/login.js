@@ -1,11 +1,14 @@
 const express = require('express');
 const router = express.Router();
+const { OAuth2Client } = require('google-auth-library');
 
 // Import the users array from signup.js
 const { users } = require('./signup'); // Make sure users is exported from signup.js
 
 // In-memory store for demo (use a database or cache in production)
 const verificationCodes = {}; // { email: { code, expiresAt } }
+const GOOGLE_CLIENT_ID = '842786956290-iupit5adg1633nr9ccbep7p9itpuec3v.apps.googleusercontent.com';
+const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 router.post('/login', (req, res) => {
     const { email, password } = req.body;
@@ -21,20 +24,28 @@ router.post('/login', (req, res) => {
     }
 });
 
-// Send code (Google login)
+// Google OAuth login endpoint
 router.post('/login/google', async (req, res) => {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ message: 'Email required.' });
+    const { id_token } = req.body;
+    if (!id_token) return res.status(400).json({ message: 'ID token required.' });
 
-    // Generate code, save with expiry, send to Gmail
-    const code = Math.floor(1000 + Math.random() * 9000).toString();
-    const expiresAt = Date.now() + 60 * 1000;
-    verificationCodes[email] = { code, expiresAt };
+    try {
+        // Verify the Google ID token
+        const ticket = await client.verifyIdToken({
+            idToken: id_token,
+            audience: GOOGLE_CLIENT_ID
+        });
+        const payload = ticket.getPayload();
+        const email = payload.email;
 
-    // TODO: Send code to user's Gmail (use nodemailer in production)
-    console.log(`Verification code for ${email}: ${code} (expires in 1 min)`);
+        // TODO: Find or create user in your database here if needed
 
-    res.json({ message: 'Verification code sent to your Gmail.' });
+        // Respond with 200 OK and user info
+        return res.json({ email, message: 'Google login successful.' });
+    } catch (err) {
+        console.error('Google login error:', err);
+        return res.status(401).json({ message: 'Invalid Google ID token.' });
+    }
 });
 
 // Resend code endpoint
