@@ -11,15 +11,12 @@ const userSchema = new mongoose.Schema({
     profilePictureUrl: { type: String, default: '' }
 });
 
+// Add this pre-save hook:
 userSchema.pre('save', async function(next) {
     if (this.isModified('password')) {
         this.password = await bcrypt.hash(this.password, 10);
     }
     next();
 });
-
-userSchema.methods.comparePassword = async function(inputPassword) {
-    return await bcrypt.compare(inputPassword, this.password);
-};
 
 module.exports = mongoose.model('User', userSchema);

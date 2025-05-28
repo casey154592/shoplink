@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', async function() {
     const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) {
-        window.location.href = 'login.html'; // Or your login page
-        return;
-    }
+    // if (!user) {
+    //     window.location.href = 'login.html'; // Or your login page
+    //     return;
+    // }
 
     const feedPosts = document.getElementById('feed-posts');
     try {
@@ -93,4 +93,47 @@ document.addEventListener('DOMContentLoaded', async function() {
             window.location.href = 'cart.html'; // Or your cart page
         });
     }
+
+    const searchToggle = document.getElementById('search-toggle');
+    const searchBar = document.getElementById('search-bar');
+
+    // Toggle search bar visibility
+    searchToggle.addEventListener('click', function() {
+        if (searchBar.style.display === 'none' || !searchBar.style.display) {
+            searchBar.style.display = 'inline-block';
+            searchBar.focus();
+        } else {
+            searchBar.style.display = 'none';
+            searchBar.value = '';
+            // Optionally, reload all posts here
+        }
+    });
+
+    // Search posts or users as user types
+    searchBar.addEventListener('input', async function() {
+        const query = searchBar.value.trim().toLowerCase();
+        if (!query) {
+            // Optionally, reload all posts if search is cleared
+            return;
+        }
+        // Fetch posts and users matching the query
+        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        // Render search results (posts and/or users)
+        // Example: show posts in feedPosts
+        feedPosts.innerHTML = data.posts.map(post => `
+            <div class="feed-post-card">
+                <div class="feed-post-header">
+                    <img class="feed-post-avatar" src="${post.author?.profilePictureUrl || './default-avatar.png'}" alt="Profile Picture" />
+                    <div>
+                        <span class="feed-post-username">${post.author?.username || 'Unknown'}</span>
+                        <span class="feed-post-date">${new Date(post.createdAt).toLocaleString()}</span>
+                    </div>
+                </div>
+                <div class="feed-post-content">${post.content}</div>
+                ${post.videoUrl ? `<video class="feed-post-video" src="${post.videoUrl}" controls></video>` : ''}
+            </div>
+        `).join('');
+        // Optionally, render users if you want to show user search results
+    });
 });

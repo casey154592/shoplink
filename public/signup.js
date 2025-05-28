@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
             showLoading(true);
             const formData = new FormData(signupForm);
             const data = Object.fromEntries(formData.entries());
+            const emailLower = data.email.toLowerCase();
             try {
                 const response = await fetch('/api/signup', {
                     method: 'POST',

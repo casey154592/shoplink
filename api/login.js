@@ -16,7 +16,7 @@ router.post('/login', async (req, res) => {
         return res.status(400).json({ message: 'Email and password are required.' });
     }
     try {
-        const user = await User.findOne({ email: email.toLowerCase() }); // Lowercase comparison
+        const user = await User.findOne({ email: email.toLowerCase() });
         if (!user) {
             return res.status(401).json({ message: 'Invalid email or password.' });
         }
@@ -24,10 +24,8 @@ router.post('/login', async (req, res) => {
         if (!isMatch) {
             return res.status(401).json({ message: 'Invalid email or password.' });
         }
-        // You can generate a JWT here if you want
         res.json({ message: 'Login successful', username: user.username, role: user.role, email: user.email });
     } catch (err) {
-        console.error('Login error:', err);
         res.status(500).json({ message: 'Server error' });
     }
 });

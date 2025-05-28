@@ -1335,31 +1335,6 @@ a{
 }
 
 /* Feed Styles */
-.feed-container {
-    min-height: 100vh;
-    width: 100vw;
-    max-width: none;
-    margin: 0;
-    background: #232323;
-    padding: 2rem 1.5rem;
-    border-radius: 0;
-    box-shadow: none;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-}
-
-.feed-container h1 {
-    text-align: left;
-    margin-left: 0.5rem;
-}
-
-#feed-posts {
-    margin-bottom: 2rem;
-}
-
 .post-card {
     background: #2d2d2d;
     border-radius: 8px;
@@ -1578,6 +1553,300 @@ a{
 @keyframes fadeIn {
     from { opacity: 0; }
     to   { opacity: 1; }
+}
+
+/* --- QUESTIONS PAGE --- */
+.questions-container {
+    max-width: 480px;
+    margin: 40px auto 0 auto;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 4px 24px rgba(131,58,180,0.10);
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
+    animation: fadeInUp 0.7s cubic-bezier(.39,.575,.565,1.000);
+}
+
+#questions-title {
+    text-align: center;
+    color: #7b2ff2;
+    margin-bottom: 1.2rem;
+    font-size: 1.3rem;
+    letter-spacing: 1px;
+}
+
+#questions-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+#questions-list label {
+    font-weight: 500;
+    color: #7b2ff2;
+    margin-bottom: 0.3rem;
+    display: block;
+}
+
+#questions-list input,
+#questions-list textarea,
+#questions-list select {
+    width: 100%;
+    border: 1.5px solid #db4437;
+    border-radius: 7px;
+    padding: 0.7rem;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    transition: border 0.2s;
+}
+
+#questions-list input:focus,
+#questions-list textarea:focus,
+#questions-list select:focus {
+    border-color: #7b2ff2;
+    outline: none;
+}
+
+#questions-form button {
+    background: linear-gradient(90deg, #7b2ff2 0%, #f357a8 100%);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.7rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(123,47,242,0.08);
+}
+
+#questions-form button:hover {
+    background: linear-gradient(90deg, #f357a8 0%, #7b2ff2 100%);
+}
+
+#loading-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 2rem 0;
+    color: #7b2ff2;
+    font-weight: 500;
+    font-size: 1.1rem;
+    animation: fadeIn 0.5s;
+    min-height: 80px;
+}
+
+#loading-indicator .fa-spinner {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+/* --- FEED PAGE --- */
+/* Make feed-container cover the whole screen on all devices */
+.feed-container {
+    min-height: 100vh;
+    min-width: 100vw;
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: linear-gradient(120deg, #fff 0%, #232323 100%);
+    padding: 0 0 2rem 0;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+.feed-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    background: #232323;
+    z-index: 100;
+    padding: 1.2rem 0 0.7rem 0;
+    box-shadow: 0 2px 12px rgba(123,47,242,0.07);
+}
+
+.feed-header h1 {
+    text-align: center;
+    margin: 0 0 0.5rem 0;
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: #7b2ff2;
+    letter-spacing: 1.5px;
+    text-shadow: 0 2px 8px rgba(123,47,242,0.08);
+}
+
+.header-icons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.2rem;
+    margin-top: 0.5rem;
+}
+
+.header-icons button {
+    background: none;
+    border: none;
+    margin-left: 1rem;
+    cursor: pointer;
+    position: relative;
+    font-size: 1.3rem;
+    color: #7b2ff2;
+    transition: color 0.2s;
+}
+
+.header-icons button:hover {
+    color: #f357a8;
+}
+
+.cart-badge,
+.notification-badge {
+    position: absolute;
+    top: -7px;
+    right: -7px;
+    background: #f357a8;
+    color: #fff;
+    border-radius: 50%;
+    padding: 2px 7px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.feed-post-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(123,47,242,0.07);
+    margin: 1rem 0;
+    padding: 1rem 1.2rem;
+    position: relative;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+.feed-post-card:hover {
+    box-shadow: 0 6px 24px rgba(123,47,242,0.13);
+    transform: translateY(-2px) scale(1.01);
+}
+.feed-post-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.feed-post-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 0.9rem;
+    border: 2px solid #7b2ff2;
+    background: #f5f5f5;
+}
+.feed-post-username {
+    font-weight: 600;
+    color: #7b2ff2;
+    font-size: 1.08rem;
+    display: block;
+}
+.feed-post-date {
+    font-size: 0.92rem;
+    color: #888;
+    margin-left: 2px;
+    display: block;
+}
+.feed-post-content {
+    font-size: 1.08rem;
+    color: #333;
+    margin-bottom: 0.7rem;
+    margin-left: 0.2rem;
+}
+.feed-post-video {
+    width: 100%;
+    max-height: 320px;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    background: #000;
+}
+.no-posts {
+    text-align: center;
+    color: #888;
+    margin-top: 2rem;
+    font-size: 1.1rem;
+}
+
+/* --- ICONS --- */
+.fa, .fas, .far, .fal, .fab {
+    color: #7b2ff2;
+    transition: color 0.2s;
+}
+.fa:hover, .fas:hover, .far:hover, .fal:hover, .fab:hover {
+    color: #f357a8;
+}
+
+/* --- ANIMATIONS --- */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px);}
+    to   { opacity: 1; transform: translateY(0);}
+}
+
+/* Search icon/button styling (similar to other header icons) */
+.search-toggle {
+    background: none;
+    border: none;
+    color: #7b2ff2;
+    font-size: 1.3rem;
+    margin-left: 1rem;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s, transform 0.2s;
+    outline: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-toggle:hover,
+.search-toggle:focus {
+    color: #f357a8;
+    transform: scale(1.12);
+}
+
+/* Search bar styling */
+.search-bar {
+    display: none;
+    width: 220px;
+    padding: 0.6rem 1rem;
+    border: 1.5px solid #7b2ff2;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-left: 1rem;
+    transition: border 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(123,47,242,0.06);
+    background: #fff;
+    color: #333;
+}
+
+.search-bar:focus {
+    border-color: #f357a8;
+    outline: none;
+}
+
+/* Responsive adjustments for search bar */
+@media (max-width: 700px) {
+    .search-bar {
+        width: 120px;
+        margin-left: 0.5rem;
+    }
 }
 
 
