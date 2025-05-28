@@ -1,37 +1,52 @@
 const express = require('express');
-const router = express.Router();
 const multer = require('multer');
-const path = require('path');
-const { users } = require('./signup'); // Use your shared users array
+const User = require('../models/User');
+const router = express.Router();
 
-// Set up multer for profile picture uploads
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '../public/uploads'));
-    },
-    filename: function (req, file, cb) {
-        const ext = path.extname(file.originalname);
-        cb(null, Date.now() + ext);
-    }
-});
-const upload = multer({ storage: storage });
+const upload = multer({ dest: 'public/uploads/' });
 
 // Update profile (username, bio, profile picture)
-router.put('/profile', upload.single('profilePicture'), (req, res) => {
+router.put('/profile', upload.single('profilePicture'), async (req, res) => {
     const { email, username, bio } = req.body;
     if (!email || !username) {
         return res.status(400).json({ message: 'Email and username are required.' });
     }
-    const user = users.find(u => u.email === email);
-    if (!user) {
-        return res.status(404).json({ message: 'User not found.' });
+    try {
+        const update = { username, bio: bio || '' };
+        if (req.file) {
+            update.profilePictureUrl = '/uploads/' + req.file.filename;
+        }
+        const user = await User.findOneAndUpdate({ email }, update, { new: true });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+        res.json({ message: 'Profile updated.', user });
+    } catch (err) {
+        console.error('Profile update error:', err);
+        res.status(500).json({ message: 'Server error' });
     }
-    user.username = username;
-    user.bio = bio || '';
-    if (req.file) {
-        user.profilePictureUrl = '/uploads/' + req.file.filename;
+});
+
+// Save answers to questions
+router.post('/profile/questions', async (req, res) => {
+    const { email, answers } = req.body;
+    if (!email || !answers) {
+        return res.status(400).json({ message: 'Email and answers are required.' });
     }
-    res.json({ message: 'Profile updated.', user });
+    try {
+        const user = await User.findOneAndUpdate(
+            { email },
+            { profileAnswers: answers },
+            { new: true }
+        );
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+        res.json({ message: 'Profile answers saved.', user });
+    } catch (err) {
+        console.error('Profile answers error:', err);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
 module.exports = router;

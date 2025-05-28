@@ -2,11 +2,9 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const { users } = require('./signup');
+const Post = require('../models/Post');
+const User = require('../models/User');
 
-const posts = [];
-
-// Set up multer for video uploads
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, path.join(__dirname, '../public/uploads'));
@@ -20,7 +18,6 @@ const upload = multer({
     storage: storage,
     limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
     fileFilter: function (req, file, cb) {
-        // Accept only video files
         if (file.mimetype.startsWith('video/')) {
             cb(null, true);
         } else {
@@ -30,32 +27,42 @@ const upload = multer({
 });
 
 // CEO creates a post (with optional video)
-router.post('/posts', upload.single('video'), (req, res) => {
+router.post('/posts', upload.single('video'), async (req, res) => {
     const { email, content } = req.body;
     if (!email || !content) {
         return res.status(400).json({ message: 'Email and content are required.' });
     }
-    const user = users.find(u => u.email === email && u.role === 'CEO');
-    if (!user) {
-        return res.status(403).json({ message: 'Only CEOs can post.' });
+    try {
+        const user = await User.findOne({ email, role: 'CEO' });
+        if (!user) {
+            return res.status(403).json({ message: 'Only CEOs can post.' });
+        }
+        let videoUrl = '';
+        if (req.file) {
+            videoUrl = '/uploads/' + req.file.filename;
+        }
+        const post = new Post({
+            author: user._id,
+            content,
+            videoUrl
+        });
+        await post.save();
+        res.status(201).json({ message: 'Post created.', post });
+    } catch (err) {
+        console.error('Post creation error:', err);
+        res.status(500).json({ message: 'Server error' });
     }
-    let videoUrl = null;
-    if (req.file) {
-        videoUrl = '/uploads/' + req.file.filename;
-    }
-    const post = {
-        author: user.username,
-        content,
-        videoUrl,
-        date: new Date()
-    };
-    posts.push(post);
-    res.status(201).json({ message: 'Post created.', post });
 });
 
 // Anyone can view posts
-router.get('/posts', (req, res) => {
-    res.json(posts);
+router.get('/posts', async (req, res) => {
+    try {
+        const posts = await Post.find().populate('author', 'username role');
+        res.json(posts);
+    } catch (err) {
+        console.error('Fetch posts error:', err);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
 module.exports = router;

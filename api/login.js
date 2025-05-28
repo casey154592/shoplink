@@ -1,26 +1,34 @@
 const express = require('express');
-const router = express.Router();
+const bcrypt = require('bcrypt');
 const { OAuth2Client } = require('google-auth-library');
+const User = require('../models/User');
+const router = express.Router();
 
-// Import the users array from signup.js
-const { users } = require('./signup'); // Make sure users is exported from signup.js
-
-// In-memory store for demo (use a database or cache in production)
-const verificationCodes = {}; // { email: { code, expiresAt } }
 const GOOGLE_CLIENT_ID = '842786956290-iupit5adg1633nr9ccbep7p9itpuec3v.apps.googleusercontent.com';
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
-router.post('/login', (req, res) => {
+// In-memory store for demo (use a database or cache in production)
+const verificationCodes = {}; // { email: { code, expiresAt } }
+
+router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
         return res.status(400).json({ message: 'Email and password are required.' });
     }
-    // Find user in the users array
-    const user = users.find(u => u.email === email && u.password === password);
-    if (user) {
-        return res.json({ username: user.username, role: user.role, message: 'Login successful.' });
-    } else {
-        return res.status(401).json({ message: 'Invalid email or password.' });
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid email or password.' });
+        }
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Invalid email or password.' });
+        }
+        // You can generate a JWT here if you want
+        res.json({ message: 'Login successful', username: user.username, role: user.role, email: user.email });
+    } catch (err) {
+        console.error('Login error:', err);
+        res.status(500).json({ message: 'Server error' });
     }
 });
 

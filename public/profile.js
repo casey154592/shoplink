@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Simulate getting user info from localStorage/session (replace with real auth in production)
     let user = JSON.parse(localStorage.getItem('user'));
     if (!user) {
-        alert('You must be logged in to view your profile.');
+        // alert('You must be logged in to view your profile.');
         window.location.href = 'index.html';
         return;
     }
@@ -53,9 +53,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else {
                         postsSection.innerHTML = posts.map(post => `
                             <div class="post-card">
-                                <h3>${post.author}</h3>
+                                <h3>${post.author?.username || 'Unknown CEO'}</h3>
                                 <p>${post.content}</p>
-                                <small>${new Date(post.date).toLocaleString()}</small>
+                                ${post.videoUrl ? `<video src="${post.videoUrl}" controls style="max-width:100%;"></video>` : ''}
+                                <small>${new Date(post.createdAt).toLocaleString()}</small>
                             </div>
                         `).join('');
                     }

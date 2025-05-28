@@ -1,8 +1,53 @@
 document.addEventListener('DOMContentLoaded', function() {
     const signupForm = document.getElementById('signup-form');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const popup = document.getElementById('popup-message');
+    const popupText = document.getElementById('popup-text');
+    const popupClose = document.getElementById('popup-close');
+    const googleBtn = document.querySelector('.g_id_signin');
+    const roleSelect = document.getElementById('role') || document.getElementById('signup-role');
+
+    // Show/hide loading indicator
+    function showLoading(show) {
+        if (loadingIndicator) loadingIndicator.style.display = show ? 'block' : 'none';
+    }
+
+    // Show popup message
+    function showPopupMessage(message) {
+        if (popup && popupText) {
+            popupText.textContent = message;
+            popup.style.display = 'flex';
+            setTimeout(() => { popup.style.display = 'none'; }, 5000);
+        } else {
+            alert(message);
+        }
+    }
+    if (popupClose) {
+        popupClose.onclick = function() {
+            popup.style.display = 'none';
+        };
+    }
+
+    // Enable/disable Google signup button based on role selection
+    if (roleSelect && googleBtn) {
+        roleSelect.addEventListener('change', function() {
+            if (this.value === "selectrole" || !this.value) {
+                googleBtn.style.pointerEvents = 'none';
+                googleBtn.style.opacity = '0.5';
+            } else {
+                googleBtn.style.pointerEvents = 'auto';
+                googleBtn.style.opacity = '1';
+            }
+        });
+        // Initialize state on page load
+        roleSelect.dispatchEvent(new Event('change'));
+    }
+
+    // Email/password signup
     if (signupForm) {
         signupForm.addEventListener('submit', async function(event) {
             event.preventDefault();
+            showLoading(true);
             const formData = new FormData(signupForm);
             const data = Object.fromEntries(formData.entries());
             try {
@@ -11,105 +56,88 @@ document.addEventListener('DOMContentLoaded', function() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
+                const result = await response.json();
                 if (response.ok) {
-                    const result = await response.json();
-                    localStorage.setItem('user', JSON.stringify(result));
+                    localStorage.setItem('user', JSON.stringify({
+                        username: result.username,
+                        email: result.email,
+                        role: result.role
+                    }));
                     showPopupMessage('Sign-up successful! Welcome, ' + result.username);
                     setTimeout(() => {
                         window.location.href = 'questions.html';
                     }, 1500);
                 } else {
-                    const result = await response.json();
-                    alert('Sign-up failed: ' + (result.message || 'Unknown error'));
+                    showPopupMessage('Sign-up failed: ' + (result.message || 'Unknown error'));
                 }
             } catch (err) {
-                alert('Network error');
+                showPopupMessage('Network error');
+            } finally {
+                showLoading(false);
             }
         });
     }
 
-    document.getElementById('google-signup').onclick = async function() {
-        // Simulate Google OAuth and get Gmail (replace with real OAuth in production)
-        const gmail = prompt("Enter your Google email for demo:");
-        const role = document.getElementById('role').value;
-        if (!gmail || !role) return alert('Please enter your Gmail and select a role.');
+    // Google signup (button click for demo/manual)
+    const googleSignupBtn = document.getElementById('google-signup');
+    if (googleSignupBtn) {
+        googleSignupBtn.onclick = async function() {
+            const gmail = prompt("Enter your Google email for demo:");
+            const role = roleSelect ? roleSelect.value : '';
+            if (!gmail || !role || role === "selectrole") {
+                showPopupMessage('Please enter your Gmail and select a role.');
+                return;
+            }
+            showLoading(true);
+            try {
+                const res = await fetch('/api/signup/google', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ gmail, role })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('userGmail', gmail);
+                    showPopupMessage('Welcome email sent! Check your Gmail for the link to continue.');
+                } else {
+                    showPopupMessage(data.message || 'Signup failed.');
+                }
+            } catch (err) {
+                showPopupMessage('Network error');
+            } finally {
+                showLoading(false);
+            }
+        };
+    }
 
-        const res = await fetch('/api/signup/google', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ gmail, role })
-        });
-        const data = await res.json();
-        if (res.ok) {
-            localStorage.setItem('userGmail', gmail);
-            alert('Welcome email sent! Check your Gmail for the link to continue.');
-            // Optionally, redirect to feed or wait for user to click the link in email
-            // window.location.href = 'feed.html';
-        } else {
-            alert(data.message || 'Signup failed.');
+    // Google Identity Services callback
+    window.handleGoogleSignup = async function(response) {
+        const id_token = response.credential;
+        const role = roleSelect ? roleSelect.value : '';
+        if (!role || role === "selectrole") {
+            showPopupMessage('Please select a role (CEO or Customer) before continuing with Google.');
+            return;
+        }
+        showLoading(true);
+        try {
+            const res = await fetch('/api/signup/google', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id_token, role })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                showPopupMessage('Welcome email sent! Check your Gmail for the link to continue.');
+                setTimeout(() => {
+                    window.location.href = 'questions.html';
+                }, 1500);
+            } else {
+                showPopupMessage(data.message || 'Signup failed.');
+            }
+        } catch (err) {
+            showPopupMessage('Network error');
+        } finally {
+            showLoading(false);
         }
     };
-
-    document.getElementById('role').addEventListener('change', function() {
-        const googleBtn = document.querySelector('.g_id_signin');
-        if (this.value === "selectrole") {
-            googleBtn.style.pointerEvents = 'none';
-            googleBtn.style.opacity = '0.5';
-        } else {
-            googleBtn.style.pointerEvents = 'auto';
-            googleBtn.style.opacity = '1';
-        }
-    });
-    // Initialize state on page load
-    document.getElementById('role').dispatchEvent(new Event('change'));
 });
-
-window.handleGoogleSignup = async function(response) {
-    const id_token = response.credential;
-    const role = document.getElementById('role').value;
-    if (!role || role === "selectrole") {
-        showPopupMessage('Please select a role (CEO or Customer) before continuing with Google.');
-        return;
-    }
-
-    const res = await fetch('/api/signup/google', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id_token, role })
-    });
-    const data = await res.json();
-    if (res.ok) {
-        showPopupMessage('Welcome email sent! Check your Gmail for the link to continue.');
-        setTimeout(() => {
-            window.location.href = 'questions.html';
-        }, 1500);
-    } else {
-        showPopupMessage(data.message || 'Signup failed.');
-    }
-};
-
-function showPopupMessage(message) {
-    const popup = document.getElementById('popup-message');
-    const popupText = document.getElementById('popup-text');
-    popupText.textContent = message;
-    popup.style.display = 'flex';
-    // Auto-hide after 5 seconds
-    setTimeout(() => { popup.style.display = 'none'; }, 5000);
-}
-document.getElementById('popup-close').onclick = function() {
-    document.getElementById('popup-message').style.display = 'none';
-};
-
-// Show/hide loading indicator in your JS (signup.js, questions.js, etc.)
-function showLoading(show) {
-    document.getElementById('loading-indicator').style.display = show ? 'block' : 'none';
-}
-
-// Example usage in async function:
-// showLoading(true);
-// try {
-//     const response = await fetch(...);
-//     // handle response
-// } finally {
-//     showLoading(false);
-// }

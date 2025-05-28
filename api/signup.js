@@ -1,36 +1,41 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
 const { OAuth2Client } = require('google-auth-library');
+const bcrypt = require('bcrypt');
+const User = require('../models/User'); // Import your Mongoose User model
 const router = express.Router();
 
-// Configure your transporter (use real credentials in production)
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'shoplink17@gmail.com',      // your Gmail address
-        pass: 'pvos zpxd gykr ysng'         // your Gmail app password (not your Gmail password!)
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 });
-const client = new OAuth2Client('842786956290-iupit5adg1633nr9ccbep7p9itpuec3v.apps.googleusercontent.com');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-const users = []; // Replace with DB in production
-
-router.post('/signup', (req, res) => {
-    const { username, email, password, role, method } = req.body;
+// Signup with email/password
+router.post('/signup', async (req, res) => {
+    const { username, email, password, role } = req.body;
     if (!username || !email || !password || !role) {
         return res.status(400).json({ message: 'All fields including role are required.' });
     }
     if (!['CEO', 'CUSTOMER'].includes(role)) {
         return res.status(400).json({ message: 'Role must be either CEO or Customer.' });
     }
-    const exists = users.find(u => u.email === email);
-    if (exists) {
-        return res.status(409).json({ message: 'User with this email already exists.' });
+    try {
+        const exists = await User.findOne({ email });
+        if (exists) {
+            return res.status(409).json({ message: 'User with this email already exists.' });
+        }
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new User({ username, email, password: hashedPassword, role });
+        await newUser.save();
+        res.json({ message: 'Signup successful', username, role });
+    } catch (err) {
+        console.error('Signup error:', err);
+        res.status(500).json({ message: 'Server error' });
     }
-    // Save user and profile info
-    const newUser = { username, email, password, role };
-    users.push(newUser);
-    res.json({ message: 'Signup successful', username, role });
 });
 
 // Google signup
@@ -40,38 +45,41 @@ router.post('/signup/google', async (req, res) => {
         return res.status(400).json({ message: 'A valid role (CEO or Customer) is required.' });
     }
 
-    // Verify the token
-    const ticket = await client.verifyIdToken({
-        idToken: id_token,
-        audience: '842786956290-iupit5adg1633nr9ccbep7p9itpuec3v.apps.googleusercontent.com'
-    });
-    const payload = ticket.getPayload();
-    const gmail = payload.email;
-
-    // TODO: Save user to DB if new, etc.
-
-    // Send welcome email with link to feed
-    const mailOptions = {
-        from: '"Shoplink" <shoplink17@gmail.com>',
-        to: gmail,
-        subject: 'Welcome to Shoplink!',
-        html: `
-            <h2>Welcome to Shoplink!</h2>
-            <p>Thank you for signing up as a ${role}.</p>
-            <p><a href="https://shoplink-h0jk.onrender.com/feed.html">Click here to continue</a></p>
-        `
-    };
-
     try {
+        // Verify the token
+        const ticket = await client.verifyIdToken({
+            idToken: id_token,
+            audience: process.env.GOOGLE_CLIENT_ID
+        });
+        const payload = ticket.getPayload();
+        const gmail = payload.email;
+
+        // Check if user exists, if not, create
+        let user = await User.findOne({ email: gmail });
+        if (!user) {
+            user = new User({ username: payload.name || gmail, email: gmail, role });
+            await user.save();
+        }
+
+        // Send welcome email with link to feed
+        const mailOptions = {
+            from: `"Shoplink" <${process.env.EMAIL_USER}>`,
+            to: gmail,
+            subject: 'Welcome to Shoplink!',
+            html: `
+                <h2>Welcome to Shoplink!</h2>
+                <p>Thank you for signing up as a ${role}.</p>
+                <p><a href="https://shoplink-h0jk.onrender.com/feed.html">Click here to continue</a></p>
+            `
+        };
+
         await transporter.sendMail(mailOptions);
         console.log(`Welcome email sent to ${gmail}`);
         res.json({ message: 'Welcome email sent.' });
     } catch (err) {
-        console.error('Email error:', err);
-        res.status(500).json({ message: 'Failed to send welcome email.' });
+        console.error('Google signup error:', err);
+        res.status(500).json({ message: 'Failed to sign up with Google.' });
     }
 });
 
-// Add similar endpoints for Facebook and Apple if needed
-
-module.exports = { router, users };
+module.exports = { router };

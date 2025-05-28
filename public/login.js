@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     const result = await response.json();
                     localStorage.setItem('user', JSON.stringify(result));
                     window.location.href = 'feed.html'; // Redirect to feed page
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Login failed.');
                 }
             } catch (error) {
                 alert('An error occurred. Please try again later.');
