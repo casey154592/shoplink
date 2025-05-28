@@ -5,15 +5,9 @@ const app = express();
 const path = require('path');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
-const Sentry = require('@sentry/node');
-
-Sentry.init({ dsn: process.env.SENTRY_DSN });
 
 app.use(express.json());
 app.use(helmet());
-
-// Request handler must be the first middleware
-app.use(Sentry.Handlers.requestHandler());
 
 // This line serves all files in the public folder as static assets:
 app.use(express.static(path.join(__dirname, 'public')));
@@ -35,9 +29,6 @@ app.use('/api', postsRoute);
 app.use('/api', (req, res, next) => {
     res.status(404).json({ message: 'API endpoint not found.' });
 });
-
-// Error handler must be before any other error middleware
-app.use(Sentry.Handlers.errorHandler());
 
 // Global error handler
 app.use((err, req, res, next) => {
