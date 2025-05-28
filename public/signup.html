@@ -6,16 +6,14 @@
     <title>Sign Up - Shoplink</title>
     <link rel="stylesheet" href="./css.style/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-C7Y4Z4F2YG"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-C7Y4Z4F2YG');
-</script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-C7Y4Z4F2YG"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-C7Y4Z4F2YG');
+    </script>
 </head>
 <body>
     <div class="signup-container">
@@ -46,15 +44,24 @@
                 </select>
             </div>
             <button type="submit">Sign Up</button>
-
-            <!-- Google Sign-In button (Google Identity Services) -->
-            <div id="g_id_onload"
-                 data-client_id="842786956290-iupit5adg1633nr9ccbep7p9itpuec3v.apps.googleusercontent.com"
-                 data-callback="handleGoogleSignup"
-                 data-auto_prompt="false">
-            </div>
-            <div class="g_id_signin" data-type="standard" style="width:100%;margin:12px 0;border:2px solid #db4437;border-radius:6px;box-shadow:0 4px 18px rgba(219,68,55,0.13);"></div>
         </form>
+
+        <!-- Google Sign-In button OUTSIDE the form -->
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+        <div id="g_id_onload"
+             data-client_id="842786956290-iupit5adg1633nr9ccbep7p9itpuec3v.apps.googleusercontent.com"
+             data-callback="handleGoogleSignup"
+             data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin"
+             data-type="standard"
+             data-shape="rectangular"
+             data-theme="outline"
+             data-text="continue_with"
+             data-size="large"
+             data-logo_alignment="left">
+        </div>
+
         <div id="welcome-message"></div>
         <p class="message">Already have an account? <a href="index.html">Log in</a></p>
     </div>
@@ -69,8 +76,6 @@
       <i class="fas fa-spinner fa-spin"></i> Loading...
     </div>
 
-    
     <script src="./signup.js"></script>
-    
 </body>
 </html>

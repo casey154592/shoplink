@@ -115,12 +115,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Google Identity Services callback
     window.handleGoogleSignup = async function(response) {
         const id_token = response.credential;
+        const roleSelect = document.getElementById('role');
         const role = roleSelect ? roleSelect.value : '';
-        if (!role || role === "selectrole") {
-            showPopupMessage('Please select a role (CEO or Customer) before continuing with Google.');
+        if (!role || role === "" || role === "selectrole") {
+            alert('Please select a role (CEO or Customer) before continuing with Google.');
             return;
         }
-        showLoading(true);
         try {
             const res = await fetch('/api/signup/google', {
                 method: 'POST',
@@ -129,17 +129,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             const data = await res.json();
             if (res.ok) {
-                showPopupMessage('Welcome email sent! Check your Gmail for the link to continue.');
-                setTimeout(() => {
-                    window.location.href = 'questions.html';
-                }, 1500);
+                window.location.href = 'questions.html';
             } else {
-                showPopupMessage(data.message || 'Signup failed.');
+                alert(data.message || 'Google signup failed.');
             }
         } catch (err) {
-            showPopupMessage('Network error');
-        } finally {
-            showLoading(false);
+            alert('Network error');
         }
     };
 });

@@ -1841,12 +1841,52 @@ a{
     outline: none;
 }
 
-/* Responsive adjustments for search bar */
-@media (max-width: 700px) {
-    .search-bar {
-        width: 120px;
-        margin-left: 0.5rem;
-    }
+/* Style for login input placeholder */
+#login-form input[type="email"]::placeholder {
+    color: #7b2ff2;
+    opacity: 1;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+}
+
+/* Style for login input */
+#login-form input[type="email"] {
+    border: 1.5px solid #7b2ff2;
+    border-radius: 7px;
+    padding: 0.7rem;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    width: 100%;
+    transition: border 0.2s;
+    background: #f9f6ff;
+    color: #333;
+}
+
+#login-form input[type="email"]:focus {
+    border-color: #f357a8;
+    outline: none;
+}
+
+/* Style for Google Sign-In button on signup page */
+.g_id_signin {
+    width: 100% !important;
+    margin: 18px 0 10px 0 !important;
+    border: 2px solid #db4437 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 18px rgba(219,68,55,0.13) !important;
+    background: #fff !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    min-height: 48px;
+    transition: box-shadow 0.2s, border 0.2s;
+}
+
+.g_id_signin:hover {
+    box-shadow: 0 6px 24px rgba(123,47,242,0.13) !important;
+    border-color: #7b2ff2 !important;
+    background: #f9f6ff !important;
 }
 
 

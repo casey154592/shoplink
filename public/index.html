@@ -147,31 +147,31 @@
     <div class="login-bg-container">
         <div class="signup-container2">
             <h1>Login</h1>
-            <form id="login-form">
-                <div class="form-group">
-                    <label for="login-email">Email</label>
-                    <input type="email" id="login-email" name="email" required>
-                </div>
-                <br>
-                <div class="form-group">
-                    <label for="login-password">Password</label>
-                    <input type="password" id="login-password" name="password" required>
-                </div>
-                <br>
-                <button type="submit">Log In</button>
-
-                <!-- Google Sign-In button (Google Identity Services) -->
-                <div id="g_id_onload"
-                     data-client_id="842786956290-iupit5adg1633nr9ccbep7p9itpuec3v.apps.googleusercontent.com"
-                     data-callback="handleGoogleLogin"
-                     data-auto_prompt="false">
-                </div>
-                <div class="g_id_signin" data-type="standard" style="width:100%;margin:12px 0;border:2px solid #db4437;border-radius:6px;box-shadow:0 4px 18px rgba(219,68,55,0.13);"></div>
-            </form>
+            <!-- Example login form -->
+<form id="login-form">
+    <input type="email" id="login-email" placeholder="Email" required>
+    <button type="submit">Login</button>
+    <br>
+    <!-- Google Sign-In button -->
+<div id="g_id_onload"
+     data-client_id="842786956290-iupit5adg1633nr9ccbep7p9itpuec3v.apps.googleusercontent.com"
+     data-callback="handleGoogleLogin"
+     data-auto_prompt="false">
+</div>
+<div class="g_id_signin"
+     data-type="standard"
+     data-shape="rectangular"
+     data-theme="outline"
+     data-text="continue_with"
+     data-size="large"
+     data-logo_alignment="left">
+</div>
+</form>
             <p class="message">Don't have an account? <a href="signup.html">Sign up</a></p>
         </div>
     </div>
     <script src="./login.js"></script>
+    
     <!-- footer section -->
     <div class="footer__container">
         <div class="footer__links">

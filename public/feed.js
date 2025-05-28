@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', async function() {
     const user = JSON.parse(localStorage.getItem('user'));
-    // if (!user) {
-    //     window.location.href = 'login.html'; // Or your login page
+    // if (!user || !user.email) {
+    //     window.location.href = 'login.html';
     //     return;
     // }
 
@@ -136,4 +136,22 @@ document.addEventListener('DOMContentLoaded', async function() {
         `).join('');
         // Optionally, render users if you want to show user search results
     });
+
+    // Example for side menu icon
+    const openMenuBtn = document.getElementById('open-menu');
+    const closeMenuBtn = document.getElementById('close-menu');
+
+    if (openMenuBtn && sideMenu) {
+        openMenuBtn.addEventListener('click', function() {
+            sideMenu.style.display = 'block';
+        });
+    }
+    if (closeMenuBtn && sideMenu) {
+        closeMenuBtn.addEventListener('click', function() {
+            sideMenu.style.display = 'none';
+        });
+    }
+
+    // Repeat similar checks for other icon buttons
+    // Example: notification, cart, chat, etc.
 });
