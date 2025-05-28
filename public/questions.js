@@ -129,4 +129,18 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = 'feed.html';
         };
     }
+
+    // Show/hide loading indicator in your JS (signup.js, questions.js, etc.)
+    function showLoading(show) {
+        document.getElementById('loading-indicator').style.display = show ? 'block' : 'none';
+    }
+
+    // Example usage in async function:
+    // showLoading(true);
+    // try {
+    //     const response = await fetch(...);
+    //     // handle response
+    // } finally {
+    //     showLoading(false);
+    // }
 });

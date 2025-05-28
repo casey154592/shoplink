@@ -15,7 +15,7 @@
         <form id="signup-form">
             <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" required>
+                <input id="username" name="username" type="text" required aria-required="true" />
             </div>
             <br>
             <div class="form-group">
@@ -29,13 +29,11 @@
             </div>
             <br>
             <div class="form-group">
-                <label for="role">Register as</label>
-                <br>
-                 
-                <select name="role" id="role" required>
-                    <option value="selectrole">Select Role</option>
-                    <option value="CEO">CEO</option>
-                    <option value="CUSTOMER">Customer</option>
+                <label for="role">Role</label>
+                <select id="role" name="role" required aria-required="true">
+                  <option value="">Select Role</option>
+                  <option value="CEO">CEO</option>
+                  <option value="CUSTOMER">Customer</option>
                 </select>
             </div>
             <button type="submit">Sign Up</button>
@@ -55,6 +53,11 @@
     <div id="popup-message" class="popup-message" style="display:none;">
         <span id="popup-text"></span>
         <button id="popup-close">&times;</button>
+    </div>
+
+    <!-- Loading indicator -->
+    <div id="loading-indicator" style="display:none;text-align:center;">
+      <i class="fas fa-spinner fa-spin"></i> Loading...
     </div>
     
     <script src="./signup.js"></script>

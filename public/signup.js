@@ -99,3 +99,17 @@ function showPopupMessage(message) {
 document.getElementById('popup-close').onclick = function() {
     document.getElementById('popup-message').style.display = 'none';
 };
+
+// Show/hide loading indicator in your JS (signup.js, questions.js, etc.)
+function showLoading(show) {
+    document.getElementById('loading-indicator').style.display = show ? 'block' : 'none';
+}
+
+// Example usage in async function:
+// showLoading(true);
+// try {
+//     const response = await fetch(...);
+//     // handle response
+// } finally {
+//     showLoading(false);
+// }

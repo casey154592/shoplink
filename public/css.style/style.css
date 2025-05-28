@@ -1890,5 +1890,11 @@ a{
 
 /* If you use Font Awesome, add this to your <head> in questions.html: */
 
+/* General focus outline style */
+input:focus, select:focus, button:focus {
+    outline: 2px solid #7b2ff2;
+    outline-offset: 2px;
+}
+
 
 
