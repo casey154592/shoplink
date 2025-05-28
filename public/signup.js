@@ -6,16 +6,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const popupClose = document.getElementById('popup-close');
     const googleBtn = document.querySelector('.g_id_signin');
     const roleSelect = document.getElementById('role') || document.getElementById('signup-role');
-    const signupLoading = document.getElementById('signup-loading');
+    // const signupLoading = document.getElementById('signup-loading');
 
     // Show/hide loading indicator
     function showLoading(show) {
         if (loadingIndicator) loadingIndicator.style.display = show ? 'block' : 'none';
-    }
-
-    // Show signup loading
-    function showSignupLoading(show) {
-        if (signupLoading) signupLoading.style.display = show ? 'flex' : 'none';
     }
 
     // Show popup message
@@ -54,7 +49,6 @@ document.addEventListener('DOMContentLoaded', function() {
         signupForm.addEventListener('submit', async function(event) {
             event.preventDefault();
             showLoading(true);
-            showSignupLoading(true);
             const formData = new FormData(signupForm);
             const data = Object.fromEntries(formData.entries());
             try {
@@ -81,7 +75,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 showPopupMessage('Network error');
             } finally {
                 showLoading(false);
-                showSignupLoading(false);
             }
         });
     }
@@ -97,7 +90,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             showLoading(true);
-            showSignupLoading(true);
             try {
                 const res = await fetch('/api/signup/google', {
                     method: 'POST',
@@ -115,7 +107,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 showPopupMessage('Network error');
             } finally {
                 showLoading(false);
-                showSignupLoading(false);
             }
         };
     }
@@ -129,7 +120,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         showLoading(true);
-        showSignupLoading(true);
         try {
             const res = await fetch('/api/signup/google', {
                 method: 'POST',
@@ -149,7 +139,6 @@ document.addEventListener('DOMContentLoaded', function() {
             showPopupMessage('Network error');
         } finally {
             showLoading(false);
-            showSignupLoading(false);
         }
     };
 });
