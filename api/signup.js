@@ -24,12 +24,13 @@ router.post('/signup', async (req, res) => {
         return res.status(400).json({ message: 'Role must be either CEO or Customer.' });
     }
     try {
-        const exists = await User.findOne({ email });
+        const emailLower = email.toLowerCase();
+        const exists = await User.findOne({ email: emailLower });
         if (exists) {
             return res.status(409).json({ message: 'User with this email already exists.' });
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({ username, email, password: hashedPassword, role });
+        const newUser = new User({ username, email: emailLower, password: hashedPassword, role });
         await newUser.save();
         res.json({ message: 'Signup successful', username, email, role });
     } catch (err) {

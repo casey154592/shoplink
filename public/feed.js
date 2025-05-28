@@ -1,61 +1,33 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user) {
         window.location.href = 'login.html'; // Or your login page
         return;
     }
 
-    // Fetch posts and store them for searching
-    let allPosts = [];
-    fetch('/api/posts')
-        .then(res => res.json())
-        .then(posts => {
-            allPosts = posts;
-            renderPosts(posts);
-        });
-
-    // Render posts function
-    function renderPosts(posts) {
-        const feedPosts = document.getElementById('feed-posts');
-        if (!posts.length) {
-            feedPosts.innerHTML = '<p>No posts yet.</p>';
+    const feedPosts = document.getElementById('feed-posts');
+    try {
+        const res = await fetch('/api/posts');
+        const posts = await res.json();
+        if (!Array.isArray(posts) || posts.length === 0) {
+            feedPosts.innerHTML = '<p class="no-posts">No posts yet.</p>';
             return;
         }
         feedPosts.innerHTML = posts.map(post => `
-            <div class="post-card">
-                <h3>${post.author}</h3>
-                <p>${post.content}</p>
-                ${post.videoUrl ? `<video controls width="320"><source src="${post.videoUrl}" type="video/mp4"></video>` : ''}
-                <small>${new Date(post.date).toLocaleString()}</small>
+            <div class="feed-post-card">
+                <div class="feed-post-header">
+                    <img class="feed-post-avatar" src="${post.author?.profilePictureUrl || './default-avatar.png'}" alt="Profile Picture" />
+                    <div>
+                        <span class="feed-post-username">${post.author?.username || 'Unknown'}</span>
+                        <span class="feed-post-date">${new Date(post.createdAt).toLocaleString()}</span>
+                    </div>
+                </div>
+                <div class="feed-post-content">${post.content}</div>
+                ${post.videoUrl ? `<video class="feed-post-video" src="${post.videoUrl}" controls></video>` : ''}
             </div>
         `).join('');
-    }
-
-    // Search functionality
-    const searchToggle = document.getElementById('search-toggle');
-    const searchBar = document.getElementById('search-bar');
-
-    if (searchToggle && searchBar) {
-        searchToggle.addEventListener('click', function() {
-            searchBar.classList.toggle('active');
-            if (searchBar.classList.contains('active')) {
-                searchBar.style.display = 'inline-block';
-                searchBar.focus();
-            } else {
-                searchBar.style.display = 'none';
-                searchBar.value = '';
-                renderPosts(allPosts);
-            }
-        });
-
-        searchBar.addEventListener('input', function() {
-            const query = searchBar.value.toLowerCase();
-            const filtered = allPosts.filter(post =>
-                post.author.toLowerCase().includes(query) ||
-                post.content.toLowerCase().includes(query)
-            );
-            renderPosts(filtered);
-        });
+    } catch (err) {
+        feedPosts.innerHTML = '<p class="no-posts">Failed to load posts.</p>';
     }
 
     // Logout functionality

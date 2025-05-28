@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (loginForm) {
         loginForm.addEventListener('submit', async function(event) {
             event.preventDefault();
-            const email = document.getElementById('login-email').value;
+            const email = document.getElementById('login-email').value.toLowerCase(); // Lowercase here
             const password = document.getElementById('login-password').value;
             try {
                 const response = await fetch('/api/login', {

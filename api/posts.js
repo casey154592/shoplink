@@ -57,10 +57,60 @@ router.post('/posts', upload.single('video'), async (req, res) => {
 // Anyone can view posts
 router.get('/posts', async (req, res) => {
     try {
-        const posts = await Post.find().populate('author', 'username role');
+        const posts = await Post.find().populate('author', 'username profilePictureUrl').sort({ createdAt: -1 });
         res.json(posts);
     } catch (err) {
         console.error('Fetch posts error:', err);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Get posts by a specific user
+router.get('/posts/user/:email', async (req, res) => {
+    try {
+        const user = await User.findOne({ email: req.params.email });
+        if (!user) return res.status(404).json({ message: 'User not found.' });
+        const posts = await Post.find({ author: user._id }).sort({ createdAt: -1 });
+        res.json(posts);
+    } catch (err) {
+        console.error('Fetch user posts error:', err);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Delete a post by ID (only by the author)
+router.delete('/posts/:id', async (req, res) => {
+    const { email } = req.body;
+    try {
+        const post = await Post.findById(req.params.id);
+        if (!post) return res.status(404).json({ message: 'Post not found.' });
+        const user = await User.findOne({ email });
+        if (!user || !post.author.equals(user._id)) {
+            return res.status(403).json({ message: 'Not authorized.' });
+        }
+        await Post.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Post deleted.' });
+    } catch (err) {
+        console.error('Delete post error:', err);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Edit a post by ID (only by the author)
+router.put('/posts/:id', async (req, res) => {
+    const { email, content } = req.body;
+    try {
+        const post = await Post.findById(req.params.id);
+        if (!post) return res.status(404).json({ message: 'Post not found.' });
+        const user = await User.findOne({ email });
+        if (!user || !post.author.equals(user._id)) {
+            return res.status(403).json({ message: 'Not authorized.' });
+        }
+        post.content = content;
+        await post.save();
+        res.json({ message: 'Post updated.', post });
+    } catch (err) {
+        console.error('Edit post error:', err);
         res.status(500).json({ message: 'Server error' });
     }
 });
