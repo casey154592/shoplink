@@ -14,8 +14,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (response.ok) {
                     const result = await response.json();
                     localStorage.setItem('user', JSON.stringify(result));
-                    alert('Sign-up successful! Welcome, ' + result.username);
-                    window.location.href = 'feed.html'; // Redirect to feed page
+                    showPopupMessage('Sign-up successful! Welcome, ' + result.username);
+                    setTimeout(() => {
+                        window.location.href = 'questions.html';
+                    }, 1500);
                 } else {
                     const result = await response.json();
                     alert('Sign-up failed: ' + (result.message || 'Unknown error'));
@@ -78,7 +80,9 @@ window.handleGoogleSignup = async function(response) {
     const data = await res.json();
     if (res.ok) {
         showPopupMessage('Welcome email sent! Check your Gmail for the link to continue.');
-        // Optionally, save Gmail to localStorage if needed
+        setTimeout(() => {
+            window.location.href = 'questions.html';
+        }, 1500);
     } else {
         showPopupMessage(data.message || 'Signup failed.');
     }

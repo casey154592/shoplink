@@ -20,7 +20,7 @@ router.post('/signup', (req, res) => {
     if (!username || !email || !password || !role) {
         return res.status(400).json({ message: 'All fields including role are required.' });
     }
-    if (!['CEO', 'Customer'].includes(role)) {
+    if (!['CEO', 'CUSTOMER'].includes(role)) {
         return res.status(400).json({ message: 'Role must be either CEO or Customer.' });
     }
     const exists = users.find(u => u.email === email);
