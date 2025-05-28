@@ -31,7 +31,7 @@ router.post('/signup', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new User({ username, email, password: hashedPassword, role });
         await newUser.save();
-        res.json({ message: 'Signup successful', username, role });
+        res.json({ message: 'Signup successful', username, email, role });
     } catch (err) {
         console.error('Signup error:', err);
         res.status(500).json({ message: 'Server error' });
