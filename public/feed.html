@@ -3,26 +3,341 @@
 <head>
     <meta charset="UTF-8">
     <title>User Feed - Shoplink</title>
-    <link rel="stylesheet" href="./css.style/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-C7Y4Z4F2YG"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-C7Y4Z4F2YG');
-</script>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(120deg, #f9f6ff 0%, #f5e9ff 100%);
+            min-height: 100vh;
+        }
+        .feed-container {
+            min-height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 80px;
+        }
+        .feed-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            background: #fff;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 2px 12px rgba(123,47,242,0.07);
+            padding: 1rem 0 0.5rem 0;
+        }
+        .feed-header h1 {
+            margin: 0;
+            font-size: 2.1rem;
+            font-weight: 700;
+            color: #7b2ff2;
+            letter-spacing: 1.5px;
+            text-shadow: 0 2px 8px rgba(123,47,242,0.08);
+        }
+        .header-icons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.2rem;
+            margin-top: 0.5rem;
+        }
+        .header-icons button,
+        .search-toggle {
+            background: none;
+            border: none;
+            color: #7b2ff2;
+            font-size: 1.3rem;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.2s, transform 0.2s;
+            outline: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .header-icons button:hover,
+        .search-toggle:hover {
+            color: #f357a8;
+            transform: scale(1.12);
+        }
+        .search-bar {
+            display: none;
+            width: 220px;
+            padding: 0.6rem 1rem;
+            border: 1.5px solid #7b2ff2;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-left: 1rem;
+            transition: border 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(123,47,242,0.06);
+            background: #fff;
+            color: #333;
+        }
+        .search-bar:focus {
+            border-color: #f357a8;
+            outline: none;
+        }
+        /* Side menu styles */
+        .open-menu {
+            position: fixed;
+            top: 22px;
+            left: 22px;
+            z-index: 200;
+            background: #fff;
+            border: none;
+            font-size: 2rem;
+            color: #7b2ff2;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            box-shadow: 0 2px 8px rgba(123,47,242,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s, box-shadow 0.2s, background 0.2s;
+        }
+        .open-menu:hover {
+            color: #f357a8;
+            background: #f9f6ff;
+        }
+        .side-menu {
+            position: fixed;
+            top: 0;
+            left: -420px;
+            width: 320px;
+            height: 100vh;
+            background: #fff;
+            box-shadow: 2px 0 18px rgba(123,47,242,0.13);
+            z-index: 300;
+            padding: 2rem 1.2rem 1.2rem 1.2rem;
+            transition: left 0.35s cubic-bezier(.39,.575,.565,1.000);
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+        .side-menu.active {
+            left: 0;
+        }
+        .close-menu {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: #f357a8;
+            cursor: pointer;
+        }
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+        .profile-pic-wrapper {
+            position: relative;
+            width: 70px;
+            height: 70px;
+            margin-bottom: 0.5rem;
+        }
+        #side-profile-pic {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #7b2ff2;
+            background: #f5f5f5;
+        }
+        .profile-pic-icon {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #fff;
+            border-radius: 50%;
+            padding: 4px;
+            color: #7b2ff2;
+            font-size: 1.1rem;
+            border: 1.5px solid #f357a8;
+        }
+        .side-menu a, .side-menu button.side-logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            padding: 0.7rem 1rem;
+            border: none;
+            background: none;
+            color: #7b2ff2;
+            font-size: 1.08rem;
+            font-weight: 500;
+            border-radius: 7px;
+            margin: 0.2rem 0;
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s;
+            cursor: pointer;
+        }
+        .side-menu a:hover, .side-menu button.side-logout-btn:hover {
+            background: #f9f6ff;
+            color: #f357a8;
+        }
+        #feed-posts {
+            width: 100%;
+            max-width: 600px;
+            margin: 2rem auto 0 auto;
+        }
+        .feed-post-card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(123,47,242,0.07);
+            margin: 1rem 0;
+            padding: 1rem 1.2rem;
+            position: relative;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .feed-post-card:hover {
+            box-shadow: 0 6px 24px rgba(123,47,242,0.13);
+            transform: translateY(-2px) scale(1.01);
+        }
+        .feed-post-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .feed-post-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 0.9rem;
+            border: 2px solid #7b2ff2;
+            background: #f5f5f5;
+        }
+        .feed-post-username {
+            font-weight: 600;
+            color: #7b2ff2;
+            font-size: 1.08rem;
+            display: block;
+        }
+        .feed-post-date {
+            font-size: 0.92rem;
+            color: #888;
+            margin-left: 2px;
+            display: block;
+        }
+        .feed-post-content {
+            font-size: 1.08rem;
+            color: #333;
+            margin-bottom: 0.7rem;
+            margin-left: 0.2rem;
+        }
+        .feed-post-video {
+            width: 100%;
+            max-height: 320px;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+            background: #000;
+        }
+        /* Product Card Styles */
+        .product-card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(123,47,242,0.07);
+            margin: 1rem 0;
+            padding: 1rem 1.2rem;
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .product-card:hover {
+            box-shadow: 0 6px 24px rgba(123,47,242,0.13);
+            transform: translateY(-2px) scale(1.01);
+        }
+        .product-img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 0.8rem;
+        }
+        .product-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .product-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #7b2ff2;
+        }
+        .negotiable-badge {
+            background: #f357a8;
+            color: #fff;
+            border-radius: 5px;
+            padding: 2px 6px;
+            font-size: 0.9rem;
+            margin-left: 0.5rem;
+        }
+        .product-desc {
+            font-size: 1rem;
+            color: #333;
+        }
+        .add-to-cart-btn {
+            background: #7b2ff2;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 0.7rem 1.2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .add-to-cart-btn:hover {
+            background: #f357a8;
+            transform: translateY(-2px);
+        }
+        @media (max-width: 700px) {
+            .side-menu {
+                width: 90vw;
+                min-width: 0;
+                padding: 1.2rem 0.5rem;
+            }
+            #feed-posts {
+                max-width: 98vw;
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- Slide-in Side Menu Button -->
+    <button id="open-menu" class="open-menu" title="Menu"><i class="fa fa-bars"></i></button>
+
+    <!-- Slide-in Side Menu -->
+    <div id="side-menu" class="side-menu">
+        <button id="close-menu" class="close-menu" title="Close">&times;</button>
+        <div class="profile-info">
+            <div class="profile-pic-wrapper">
+                <img id="side-profile-pic" src="" alt="Profile Picture" />
+                <span class="profile-pic-icon"><i class="fa fa-user"></i></span>
+            </div>
+            <h3 id="side-profile-username"></h3>
+            <p id="side-profile-email"></p>
+            <p id="side-profile-role"></p>
+            <p id="side-profile-bio"></p>
+        </div>
+        <a href="index.html"><i class="fa fa-home"></i> Home</a>
+        <a href="profile.html"><i class="fa fa-user-edit"></i> Edit Profile</a>
+        <a href="cart.html"><i class="fa fa-shopping-cart"></i> Cart</a>
+        <a href="mailto:support@shoplink.com"><i class="fa fa-envelope"></i> Email us</a>
+        <button id="side-logout-btn" class="side-logout-btn"><i class="fa fa-sign-out-alt"></i> Logout</button>
+    </div>
+
     <div class="feed-container">
         <div class="feed-header">
             <h1>Shoplink</h1>
-            <button id="search-toggle" class="search-toggle">
-                <i class="fa fa-search"></i>
-            </button>
-            <input type="text" id="search-bar" class="search-bar" placeholder="Search posts..." style="display:none;">
             <div class="header-icons">
                 <button id="chat-btn" class="chat-btn" title="Chat">
                     <i class="fa fa-comments"></i>
@@ -31,34 +346,17 @@
                     <i class="fa fa-shopping-cart"></i>
                     <span id="cart-badge" class="cart-badge" style="display:none;">0</span>
                 </button>
-                <button id="notification-btn" class="notification-btn" title="Notifications">
+                <button id="notification-icon" class="notification-btn" title="Notifications">
                     <i class="fa fa-bell"></i>
-                    <span id="notification-badge" class="notification-badge" style="display:none;">1</span>
+                    <span id="notification-badge" class="notification-badge" style="display:none;">0</span>
                 </button>
+                <button id="search-toggle" class="search-toggle" title="Search">
+                    <i class="fa fa-search"></i>
+                </button>
+                <input type="text" id="search-bar" class="search-bar" placeholder="Search posts or users..." style="display:none;">
             </div>
         </div>
         <div id="feed-posts"></div>
-    </div>
-
-    <!-- Slide-in Side Menu -->
-    <button id="open-menu" class="open-menu"><i class="fa fa-bars"></i></button>
-    <div id="side-menu" class="side-menu" style="display:none;">
-        <button id="close-menu" class="close-menu">&times;</button>
-        <div class="profile-info">
-            <div class="profile-pic-wrapper">
-                <img id="side-profile-pic" src="" alt="Profile Picture" />
-                <span class="profile-pic-icon"><i class="fa fa-user"></i></span>
-            </div>
-            <!-- <h3 id="side-profile-username"></h3>
-            <p id="side-profile-email"></p>
-            <p id="side-profile-role"></p>
-            <p id="side-profile-bio"></p> -->
-        </div>
-        <a href="index.html"><i class="fa fa-home"></i> Home</a>
-        <a href="profile.html"><i class="fa fa-user-edit"></i> Edit Profile</a>
-        <a href="cart.html"><i class="fa fa-shopping-cart"></i> Cart</a>
-        <a href="./"><i class="fa fa-envelope"></i> Email us</a>
-        <button id="side-logout-btn" class="side-logout-btn">Logout</button>
     </div>
     <script src="./feed.js"></script>
 </body>

@@ -1,117 +1,141 @@
 const express = require('express');
-const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const Post = require('../models/Post');
+const mongoose = require('mongoose');
+const router = express.Router();
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+// Middleware for authentication
+async function auth(req, res, next) {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ message: 'No token' });
+    try {
+        const decoded = jwt.verify(token, 'YOUR_SECRET');
+        req.user = await User.findById(decoded.id);
+        next();
+    } catch (err) {
+        res.status(401).json({ message: 'Invalid token' });
+    }
+}
+
+// Example User and Post schemas
+const UserModel = mongoose.model('User', new mongoose.Schema({
+    username: String,
+    profilePic: String,
+    role: String,
+    followers: [String], // Array of user IDs
+    // ...other fields
+}));
+
+const Post = mongoose.model('Post', new mongoose.Schema({
+    ceoId: String,
+    imageUrl: String,
+    price: Number,
+    description: String,
+    negotiable: Boolean,
+    createdAt: { type: Date, default: Date.now }
+}));
+
+const Notification = mongoose.model('Notification', new mongoose.Schema({
+    userId: String,
+    ceoId: String,
+    postId: String,
+    content: String,
+    createdAt: { type: Date, default: Date.now },
+    read: { type: Boolean, default: false }
+}));
+
+// Multer setup for image upload
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '../public/uploads'));
+        cb(null, path.join(__dirname, '../uploads'));
     },
     filename: function (req, file, cb) {
-        const ext = path.extname(file.originalname);
-        cb(null, Date.now() + ext);
+        cb(null, Date.now() + '-' + file.originalname);
     }
 });
-const upload = multer({
-    storage: storage,
-    limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
-    fileFilter: function (req, file, cb) {
-        if (file.mimetype.startsWith('video/')) {
-            cb(null, true);
-        } else {
-            cb(null, false);
-        }
-    }
-});
+const upload = multer({ storage });
 
-// CEO creates a post (with optional video)
-router.post('/posts', upload.single('video'), async (req, res) => {
-    const { email, content } = req.body;
-    if (!email || !content) {
-        return res.status(400).json({ message: 'Email and content are required.' });
-    }
+// Create a new product post (Ceo only)
+router.post('/', auth, upload.single('productImage'), async (req, res) => {
     try {
-        const user = await User.findOne({ email, role: 'CEO' });
-        if (!user) {
-            return res.status(403).json({ message: 'Only CEOs can post.' });
-        }
-        let videoUrl = '';
-        if (req.file) {
-            videoUrl = '/uploads/' + req.file.filename;
-        }
+        // You should check if user is authenticated and is a Ceo here
+        // Example: req.user.role === 'ceo'
+        const { price, description, negotiable } = req.body;
+        const imageUrl = req.file ? `/uploads/${req.file.filename}` : '';
+        const ceoId = req.user ? req.user.id : 'demo-ceo'; // Replace with real user ID
+
         const post = new Post({
-            author: user._id,
-            content,
-            videoUrl
+            ceoId,
+            imageUrl,
+            price,
+            description,
+            negotiable: negotiable === 'on' || negotiable === true || negotiable === 'true'
         });
         await post.save();
-        res.status(201).json({ message: 'Post created.', post });
-    } catch (err) {
-        console.error('Post creation error:', err);
-        res.status(500).json({ message: 'Server error' });
-    }
-});
+        res.status(201).json({ message: 'Product posted!', post });
 
-// Anyone can view posts
-router.get('/posts', async (req, res) => {
-    try {
-        const posts = await Post.find().populate('author', 'username profilePictureUrl').sort({ createdAt: -1 });
-        res.json(posts);
-    } catch (err) {
-        console.error('Fetch posts error:', err);
-        res.status(500).json({ message: 'Server error' });
-    }
-});
-
-// Get posts by a specific user
-router.get('/posts/user/:email', async (req, res) => {
-    try {
-        const user = await User.findOne({ email: req.params.email });
-        if (!user) return res.status(404).json({ message: 'User not found.' });
-        const posts = await Post.find({ author: user._id }).sort({ createdAt: -1 });
-        res.json(posts);
-    } catch (err) {
-        console.error('Fetch user posts error:', err);
-        res.status(500).json({ message: 'Server error' });
-    }
-});
-
-// Delete a post by ID (only by the author)
-router.delete('/posts/:id', async (req, res) => {
-    const { email } = req.body;
-    try {
-        const post = await Post.findById(req.params.id);
-        if (!post) return res.status(404).json({ message: 'Post not found.' });
-        const user = await User.findOne({ email });
-        if (!user || !post.author.equals(user._id)) {
-            return res.status(403).json({ message: 'Not authorized.' });
+        // Notify followers when Ceo posts a product
+        const ceo = await UserModel.findById(post.ceoId);
+        for (const followerId of ceo.followers) {
+            await Notification.create({
+                userId: followerId,
+                ceoId: ceo._id,
+                postId: post._id,
+                content: `${ceo.username} posted a new product: ${post.description}`
+            });
         }
-        await Post.findByIdAndDelete(req.params.id);
-        res.json({ message: 'Post deleted.' });
     } catch (err) {
-        console.error('Delete post error:', err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Failed to post product', error: err.message });
     }
 });
 
-// Edit a post by ID (only by the author)
-router.put('/posts/:id', async (req, res) => {
-    const { email, content } = req.body;
+// Get all product posts (for feed)
+router.get('/', async (req, res) => {
     try {
-        const post = await Post.findById(req.params.id);
-        if (!post) return res.status(404).json({ message: 'Post not found.' });
-        const user = await User.findOne({ email });
-        if (!user || !post.author.equals(user._id)) {
-            return res.status(403).json({ message: 'Not authorized.' });
-        }
-        post.content = content;
-        await post.save();
-        res.json({ message: 'Post updated.', post });
+        const posts = await Post.find().sort({ createdAt: -1 });
+        const postsWithAuthor = await Promise.all(posts.map(async post => {
+            const ceo = await UserModel.findById(post.ceoId);
+            return {
+                ...post.toObject(),
+                author: ceo ? {
+                    username: ceo.username,
+                    profilePictureUrl: ceo.profilePic // or whatever your field is
+                } : { username: 'Unknown', profilePictureUrl: './default-avatar.png' }
+            };
+        }));
+        res.json(postsWithAuthor);
     } catch (err) {
-        console.error('Edit post error:', err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Failed to fetch posts', error: err.message });
+    }
+});
+
+// Follow a Ceo
+router.post('/follow/:ceoId', auth, async (req, res) => {
+    try {
+        const userId = req.user.id; // You must have authentication middleware
+        const ceoId = req.params.ceoId;
+        const ceo = await UserModel.findById(ceoId);
+        if (!ceo) return res.status(404).json({ message: 'Ceo not found' });
+        if (!ceo.followers.includes(userId)) {
+            ceo.followers.push(userId);
+            await ceo.save();
+        }
+        res.json({ message: 'Ceo followed' });
+    } catch (err) {
+        res.status(500).json({ message: 'Failed to follow Ceo', error: err.message });
+    }
+});
+
+// Get notifications for a user
+router.get('/notifications', auth, async (req, res) => {
+    try {
+        const userId = req.user.id; // You must have authentication middleware
+        const notifications = await Notification.find({ userId }).sort({ createdAt: -1 });
+        res.json(notifications);
+    } catch (err) {
+        res.status(500).json({ message: 'Failed to fetch notifications', error: err.message });
     }
 });
 

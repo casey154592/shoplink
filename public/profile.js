@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const user = JSON.parse(localStorage.getItem('user'));
+    const token = user?.token;
     const postsContainer = document.getElementById('posts-container');
     const postsLoading = document.getElementById('posts-loading');
 
@@ -13,7 +14,9 @@ document.addEventListener('DOMContentLoaded', function() {
         showPostsLoading(true);
         postsContainer.innerHTML = '';
         try {
-            const res = await fetch(`/api/posts/user/${encodeURIComponent(user.email)}`);
+            const res = await fetch(`/api/posts/user/${encodeURIComponent(user.email)}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             const posts = await res.json();
             showPostsLoading(false);
             if (!Array.isArray(posts) || posts.length === 0) {

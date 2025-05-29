@@ -4,30 +4,760 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shoplink</title>
-    <link rel="stylesheet" href="./css.style/style.css">
+    <!-- <link rel="stylesheet" href="./css.style/style.css"> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-C7Y4Z4F2YG"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-C7Y4Z4F2YG"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-C7Y4Z4F2YG');
+    </script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+          /* *{
+             
+             margin: 0;
+             
+             font-family: 'kumbh sans',sans-serif;
+             
+         } */
 
-  gtag('config', 'G-C7Y4Z4F2YG');
-</script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(120deg, #f9f6ff 0%, #f5e9ff 100%);
+            min-height: 100vh;
+            scroll-behavior: smooth;
+        }
+        .navbar {
+            background: #fff;
+            box-shadow: 0 2px 12px rgba(123,47,242,0.07);
+            padding: 0.7rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .navbar__container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        #navbar__logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #7b2ff2;
+            text-decoration: none;
+            letter-spacing: 1.5px;
+        }
+        .navbar__menu {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar__links {
+            color: #7b2ff2;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .navbar__links:hover {
+            color: #f357a8;
+        }
+        .navbar__btn .button {
+            background: linear-gradient(90deg, #7b2ff2 0%, #f357a8 100%);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 0.6rem 1.2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(123,47,242,0.08);
+        }
+        .navbar__btn .button:hover {
+            background: linear-gradient(90deg, #f357a8 0%, #7b2ff2 100%);
+            color: #fff;
+        }
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            background: none;
+        }
+        .hero__container {
+            text-align: center;
+            padding: 3rem 1rem 2rem 1rem;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(131,58,180,0.10);
+            max-width: 600px;
+            margin: 2rem auto;
+            animation: fadeInUp 0.7s cubic-bezier(.39,.575,.565,1.000);
+        }
+        .hero__heading {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #7b2ff2;
+            margin-bottom: 0.5rem;
+        }
+        .hero__heading span {
+            color: #f357a8;
+        }
+        .hero__description {
+            font-size: 1.3rem;
+            color: #888;
+            margin-bottom: 1.5rem;
+        }
+        .main__btn {
+            background: linear-gradient(90deg, #7b2ff2 0%, #f357a8 100%);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 0.8rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(123,47,242,0.08);
+        }
+        .main__btn a {
+            color: #fff;
+            text-decoration: none;
+        }
+        .main__btn:hover {
+            background: linear-gradient(90deg, #f357a8 0%, #7b2ff2 100%);
+        }
+        .main__img--animation {
+            display: flex;
+            gap: 1.2rem;
+            align-items: center;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        .shop-icon, .cursor-icon {
+            font-size: 2.2rem;
+            color: #7b2ff2;
+            background: #f9f6ff;
+            border-radius: 50%;
+            padding: 0.7rem;
+            margin: 0 0.3rem;
+            box-shadow: 0 2px 8px rgba(123,47,242,0.08);
+        }
+        .shop-icon:nth-child(2) { color: #f357a8; }
+        .shop-icon:nth-child(3) { color: #ffb347; }
+        .app-title {
+            font-size: 1.3rem;
+            color: #7b2ff2;
+            font-weight: 600;
+            margin-left: 1rem;
+        }
+        .footer__container {
+            background: #fff;
+            padding: 2rem 0 1rem 0;
+            margin-top: 3rem;
+            box-shadow: 0 -2px 12px rgba(123,47,242,0.07);
+            border-radius: 18px 18px 0 0;
+        }
+        .footer__links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        .footer__links--wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .footer__links--items {
+            min-width: 150px;
+            margin-bottom: 1rem;
+        }
+        .footer__links--items h2 {
+            color: #7b2ff2;
+            font-size: 1.1rem;
+            margin-bottom: 0.7rem;
+            font-weight: 700;
+        }
+        .footer__links--items a {
+            display: block;
+            color: #888;
+            text-decoration: none;
+            margin-bottom: 0.4rem;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+        .footer__links--items a:hover {
+            color: #f357a8;
+            text-decoration: underline;
+        }
+        .footer__logo {
+            font-size: 2rem;
+            color: #7b2ff2;
+            font-weight: 900;
+            letter-spacing: 2px;
+            transition: color 0.2s, text-shadow 0.2s;
+            text-shadow: 0 2px 8px rgba(123,47,242,0.08);
+            display: inline-block;
+            margin-bottom: 0.5rem;
+            text-decoration: none; /* Remove underline */
+        }
+        .footer__logo a {
+            color: inherit;
+            text-decoration: none; /* Remove underline from the link */
+        }
+        .website__rights {
+            color: #888;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+        .social__icons--links {
+            color: #7b2ff2;
+            font-size: 1.3rem;
+            margin: 0 0.5rem;
+            transition: color 0.2s;
+        }
+        .social__icons--links:hover {
+            color: #f357a8;
+        }
+        /* Make services cards horizontal and scrollable */
+        .services__wrapper {
+            display: flex;
+            flex-direction: row;
+            gap: 2rem;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #7b2ff2 #f9f6ff;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+        .services__wrapper::-webkit-scrollbar {
+            height: 8px;
+            background: #f9f6ff;
+        }
+        .services__wrapper::-webkit-scrollbar-thumb {
+            background: #7b2ff2;
+            border-radius: 4px;
+        }
+        .services__card {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px rgba(123,47,242,0.10);
+            padding: 1.2rem 1rem 1.5rem 1rem;
+            min-width: 220px;
+            max-width: 240px;
+            flex: 0 0 220px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 0.5rem;
+            transition: transform 0.4s cubic-bezier(.39,.575,.565,1.000), box-shadow 0.2s, background 0.2s;
+            position: relative;
+            cursor: pointer;
+        }
+        .services__card:hover {
+            transform: scale(1.06) translateY(-8px) rotate(-1deg);
+            box-shadow: 0 8px 32px rgba(123,47,242,0.18);
+            background: #f9f6ff;
+            z-index: 2;
+        }
+        .services__img-container {
+            width: 120px;
+            height: 120px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(123,47,242,0.10);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f5e9ff;
+            transition: box-shadow 0.3s, background 0.3s;
+        }
+        .services__card:hover .services__img-container {
+            box-shadow: 0 6px 18px rgba(123,47,242,0.18);
+            background: #fff;
+        }
+        .services__img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s cubic-bezier(.39,.575,.565,1.000);
+        }
+        .services__card:hover .services__img-container img {
+            transform: scale(1.13) rotate(-2deg);
+        }
+        .services__btn button {
+            background: linear-gradient(90deg, #7b2ff2 0%, #f357a8 100%);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem 1.2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0.7rem;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(123,47,242,0.08);
+        }
+        .services__btn button:hover {
+            background: linear-gradient(90deg, #f357a8 0%, #7b2ff2 100%);
+        }
+
+        /* Footer logo, rights, and social icons */
+        .footer__logo {
+            font-size: 2rem;
+            color: #7b2ff2;
+            font-weight: 900;
+            letter-spacing: 2px;
+            transition: color 0.2s, text-shadow 0.2s;
+            text-shadow: 0 2px 8px rgba(123,47,242,0.08);
+            display: inline-block;
+            margin-bottom: 0.5rem;
+            text-decoration: none; /* Remove underline */
+        }
+        .footer__logo a {
+            color: inherit;
+            text-decoration: none; /* Remove underline from the link */
+        }
+        .website__rights {
+            color: #888;
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+            text-align: center;
+            font-weight: 500;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+        .website__rights:hover {
+            color: #7b2ff2;
+        }
+        .social__icons--links {
+            color: #7b2ff2;
+            font-size: 1.6rem;
+            margin: 0 0.7rem;
+            transition: color 0.2s, transform 0.2s;
+            display: inline-block;
+        }
+        .social__icons--links:hover {
+            color: #f357a8;
+            transform: scale(1.2) rotate(-8deg);
+        }
+
+        /* Add or update this in your <style> section */
+        .main__content1 {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 18px rgba(123,47,242,0.08);
+            padding: 2rem 1.5rem 1.5rem 1.5rem;
+            margin: 2rem auto 0 auto;
+            max-width: 600px;
+            text-align: center;
+            animation: fadeInUp 0.8s cubic-bezier(.39,.575,.565,1.000);
+            transition: box-shadow 0.3s, background 0.3s;
+        }
+        .main__content1:hover {
+            box-shadow: 0 8px 32px rgba(123,47,242,0.13);
+            background: #f9f6ff;
+        }
+        .main__content1 h1 {
+            font-size: 1.5rem;
+            color: #7b2ff2;
+            font-weight: 700;
+            margin-bottom: 0.7rem;
+            letter-spacing: 0.5px;
+            line-height: 1.3;
+            transition: color 0.2s;
+        }
+        .main__content1 h2 {
+            font-size: 1.2rem;
+            color: #f357a8;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+        /* Add this to your <style> section */
+
+        .main__img--container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 2rem auto 0 auto;
+            padding: 1rem 0;
+            background: linear-gradient(120deg, #f9f6ff 60%, #f5e9ff 100%);
+            border-radius: 18px;
+            box-shadow: 0 2px 12px rgba(123,47,242,0.08);
+            max-width: 350px;
+            min-height: 120px;
+            transition: box-shadow 0.3s, background 0.3s;
+            animation: fadeInUp 1s cubic-bezier(.39,.575,.565,1.000);
+        }
+        .main__img--container:hover {
+            box-shadow: 0 8px 32px rgba(123,47,242,0.13);
+            background: #fff;
+        }
+        @media (max-width: 900px) {
+            .services__wrapper {
+                gap: 1rem;
+            }
+            .services__card {
+                min-width: 180px;
+                max-width: 200px;
+            }
+            .services__img-container {
+                width: 90px;
+                height: 90px;
+            }
+            .footer__links {
+                gap: 1rem;
+            }
+        }
+        @media (max-width: 700px) {
+            .navbar__container {
+                justify-content: center;
+                position: relative;
+                padding: 0 0.5rem;
+            }
+            #navbar__logo {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 102;
+                font-size: 1.6rem;
+            }
+            .navbar__toggle {
+                display: block;
+                position: absolute;
+                left: 0.5rem;
+                top: 50%;
+                transform: translateY(-50%);
+                z-index: 103;
+            }
+            .navbar__menu {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100vw;
+                background: #fff;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0;
+                box-shadow: 0 8px 32px rgba(123,47,242,0.13);
+                padding: 0;
+                display: none;
+                z-index: 101;
+                border-radius: 0 0 18px 18px;
+                opacity: 0;
+                pointer-events: none;
+                transform: translateY(-20px) scaleY(0.95);
+                transition: 
+                    opacity 0.35s cubic-bezier(.39,.575,.565,1.000),
+                    transform 0.35s cubic-bezier(.39,.575,.565,1.000);
+            }
+            .navbar__menu.active {
+                display: flex;
+                opacity: 1;
+                pointer-events: auto;
+                transform: translateY(0) scaleY(1);
+                animation: dropdownIn 0.35s cubic-bezier(.39,.575,.565,1.000);
+            }
+            @keyframes dropdownIn {
+                from { opacity: 0; transform: translateY(-20px) scaleY(0.95);}
+                to   { opacity: 1; transform: translateY(0) scaleY(1);}
+            }
+            .navbar__item, .navbar__btn {
+                width: 100%;
+                padding: 0.7rem 1.5rem;
+            }
+            .navbar__links, .button {
+                width: 100%;
+                display: block;
+                text-align: left;
+                font-size: 1.1rem;
+            }
+            /* Fit main content below navbar */
+            .hero,
+            .main,
+            .services,
+            .footer__container {
+                margin-top: 0.5rem !important;
+                padding-left: 0.5rem !important;
+                padding-right: 0.5rem !important;
+                max-width: 100vw !important;
+                box-sizing: border-box;
+            }
+            .hero__container,
+            .main__container,
+            .main__content1,
+            .services__wrapper {
+                max-width: 100vw !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+        }
+        @media (max-width: 600px) {
+            .services__card {
+                min-width: 140px;
+                max-width: 150px;
+                padding: 0.7rem 0.3rem 1rem 0.3rem;
+            }
+            .services__img-container {
+                width: 60px;
+                height: 60px;
+            }
+            .main__content1 {
+                padding: 1rem 0.5rem 1rem 0.5rem;
+                max-width: 98vw;
+            }
+            .main__content1 h1 { font-size: 1.1rem; }
+            .main__content1 h2 { font-size: 1rem; }
+            .main__img--ipad-frame { width: 120px; height: 80px; }
+            .footer__logo { font-size: 1.3rem; }
+            .website__rights { font-size: 0.9rem; }
+            .social__icons--links { font-size: 1.2rem; }
+        }
+
+        /* Add or update this in your <style> section */
+
+        .social__media--wrap {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer__logo {
+            /* already styled */
+        }
+
+        .website__rights {
+            flex: 1 1 100%;
+            text-align: center;
+            order: 2;
+            margin: 0.5rem 0 0.5rem 0;
+        }
+
+        .social__icons {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex: 1 1 auto;
+            order: 3;
+        }
+
+        /* Responsive: stack on small screens */
+        @media (max-width: 700px) {
+            .social__media--wrap {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            .footer__logo, .social__icons {
+                justify-content: center;
+                width: 100%;
+            }
+            .website__rights {
+                order: 2;
+                width: 100%;
+                margin: 0.5rem 0;
+            }
+        }
+
+        .navbar__toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: #7b2ff2;
+            cursor: pointer;
+            margin-right: 1rem;
+        }
+        @media (max-width: 700px) {
+            .navbar__container {
+                justify-content: center;
+                position: relative;
+                padding: 0 0.5rem;
+            }
+            #navbar__logo {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 102;
+                font-size: 1.6rem;
+            }
+            .navbar__toggle {
+                display: block;
+                position: absolute;
+                left: 0.5rem;
+                top: 50%;
+                transform: translateY(-50%);
+                z-index: 103;
+            }
+            .navbar__menu {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100vw;
+                background: #fff;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0;
+                box-shadow: 0 8px 32px rgba(123,47,242,0.13);
+                padding: 0;
+                display: none;
+                z-index: 101;
+                border-radius: 0 0 18px 18px;
+                opacity: 0;
+                pointer-events: none;
+                transform: translateY(-20px) scaleY(0.95);
+                transition: 
+                    opacity 0.35s cubic-bezier(.39,.575,.565,1.000),
+                    transform 0.35s cubic-bezier(.39,.575,.565,1.000);
+            }
+            .navbar__menu.active {
+                display: flex;
+                opacity: 1;
+                pointer-events: auto;
+                transform: translateY(0) scaleY(1);
+                animation: dropdownIn 0.35s cubic-bezier(.39,.575,.565,1.000);
+            }
+            @keyframes dropdownIn {
+                from { opacity: 0; transform: translateY(-20px) scaleY(0.95);}
+                to   { opacity: 1; transform: translateY(0) scaleY(1);}
+            }
+            .navbar__item, .navbar__btn {
+                width: 100%;
+                padding: 0.7rem 1.5rem;
+            }
+            .navbar__links, .button {
+                width: 100%;
+                display: block;
+                text-align: left;
+                font-size: 1.1rem;
+            }
+            /* Fit main content below navbar */
+            .hero,
+            .main,
+            .services,
+            .footer__container {
+                margin-top: 0.5rem !important;
+                padding-left: 0.5rem !important;
+                padding-right: 0.5rem !important;
+                max-width: 100vw !important;
+                box-sizing: border-box;
+            }
+            .hero__container,
+            .main__container,
+            .main__content1,
+            .services__wrapper {
+                max-width: 100vw !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+        }
+        @media (max-width: 600px) {
+            .services__card {
+                min-width: 140px;
+                max-width: 150px;
+                padding: 0.7rem 0.3rem 1rem 0.3rem;
+            }
+            .services__img-container {
+                width: 60px;
+                height: 60px;
+            }
+            .main__content1 {
+                padding: 1rem 0.5rem 1rem 0.5rem;
+                max-width: 98vw;
+            }
+            .main__content1 h1 { font-size: 1.1rem; }
+            .main__content1 h2 { font-size: 1rem; }
+            .main__img--ipad-frame { width: 120px; height: 80px; }
+            .footer__logo { font-size: 1.3rem; }
+            .website__rights { font-size: 0.9rem; }
+            .social__icons--links { font-size: 1.2rem; }
+        }
+
+        /* Add or update in your <style> section */
+
+        /* Center .main__btn and .footer__logo on mobile, and fit all content */
+        @media (max-width: 700px) {
+            .main__btn {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-left: auto;
+                margin-right: auto;
+                width: fit-content;
+            }
+            .footer__logo {
+                display: flex !important;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                margin-left: auto;
+                margin-right: auto;
+                text-align: center;
+            }
+            .footer__logo a {
+                width: 100%;
+                text-align: center;
+            }
+            /* Fit all main content to viewport */
+            .hero,
+            .main,
+            .services,
+            .footer__container {
+                margin-top: 0.5rem !important;
+                padding-left: 0.5rem !important;
+                padding-right: 0.5rem !important;
+                max-width: 100vw !important;
+                box-sizing: border-box;
+            }
+            .hero__container,
+            .main__container,
+            .main__content1,
+            .services__wrapper {
+                max-width: 100vw !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- navbar section -->
     <nav class="navbar">
         <div class="navbar__container">
-            <a href="#home" id="navbar__logo">Shoplink</a>
-            <div class="navbar__toggle" id= "mobile-menu">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </div>
-            <ul class="navbar__menu">
+            <button class="navbar__toggle" id="navbar-toggle" aria-label="Open menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a href="index.html" id="navbar__logo">Shoplink</a>
+            <ul class="navbar__menu" id="navbar-menu">
                 <li class="navbar__item">
                     <a href="#home" class="navbar__links" id="home-page">
                         <i class="fas fa-home"></i> Home
@@ -44,7 +774,10 @@
                     </a>
                 </li>
                 <li class="navbar__btn">
-                    <a href="signup.html" class="button" id="sign up" target="_self">Sign up</a>
+                    <a href="signup.html" class="button" id="sign-up" target="_self">Sign up</a>
+                </li>
+                <li class="navbar__btn">
+                    <a href="login.html" class="button" id="login-btn" target="_self">Login</a>
                 </li>
             </ul>
         </div>
@@ -55,7 +788,7 @@
             <div class="hero__container">
                 <h1 class="hero__heading">Link With <span>Business Owners on</span></h1>
                 <p class="hero__description">Shoplink</p>
-                <button class="main__btn"><a href="./signup.html" target="_self">Get started</a></button>
+                <button class="main__btn"><a href="signup.html" target="_self">Get started</a></button>
             </div>
         </div>
     </div>
@@ -68,28 +801,24 @@
                     <span class="shop-icon"><i class="fas fa-tshirt"></i></span>
                     <span class="shop-icon"><i class="fas fa-shoe-prints"></i></span>
                     <span class="cursor-icon"><i class="fas fa-hand-pointer"></i></span>
-                    <span class="app-title">Shoplink</span>
+                    <!-- <span class="app-title">Shoplink</span> -->
                 </div>
             </div>
-            
             <div class="main__content1">
                 <h1>Shoplink is here to integrate both customers and business owners together, linking both set of personnel for business transaction and negotiation on a safe business digital space</h1>
                 <h2>Start shopping</h2>
-                <p></p>
-                
             </div>
         </div>
     </div>
     <!-- services section -->
     <div class="services" id="services">
-        <h1>Our Services</h1>
+        <br>
         <div class="services__wrapper">
             <div class="services__card">
                 <div class="services__img-container">
                     <img src="images/bag.jpg" alt="Bags" />
                 </div>
                 <h2>Bags</h2>
-                <p></p>
                 <div class="services__btn"><button>Shop Now</button></div>
             </div>
             <div class="services__card">
@@ -97,140 +826,112 @@
                     <img src="images/mediamodifier-7cERndkOyDw-unsplash.jpg" alt="Clothes" />
                 </div>
                 <h2>Clothes</h2>
-                <p></p>
                 <div class="services__btn"><button>Shop Now</button></div>
             </div>
             <div class="services__card">
                 <div class="services__img-container">
                     <img src="images/shoe.jpg" alt="Shoes" />
-                
-                <h2>Shoes</h2>
-                <p></p>
-                <div class="services__btn"><button>Shop Now</button></div>
                 </div>
+                <h2>Shoes</h2>
+                <div class="services__btn"><button>Shop Now</button></div>
             </div>
             <div class="services__card">
                 <div class="services__img-container">
                     <img src="images/accessories.jpg" alt="Accessories" />
-                
-                <h2>Accessories</h2>
-                <p></p>
-                <div class="services__btn"><button>Shop Now</button></div>
                 </div>
+                <h2>Accessories</h2>
+                <div class="services__btn"><button>Shop Now</button></div>
             </div>
-        
+        </div>
     </div>
     <!-- features section -->
     <div class="main" id="Sign up">
         <div class="main__container">
             <div class="main__content">
-                <h1>Start shopping by</h1>
-                <h2>Linking</h2>
-                <p></p>
-                <button class="main__btn"><a href="signup.html" target="_blank">Sign Up</a></button>
-
+                <h1></h1>
+                <h2></h2>
+                <button class="main__btn"><a href="signup.html" target="_self">Sign Up</a></button>
             <div class="main__img--container">
-                <!-- iPad Frame Animation -->
-            <div class="main__img--ipad-frame">
-                <div class="ipad-animation-content">
-                    <div class="hands-shake">
-                        <span class="hand left-hand"><i class="fas fa-handshake"></i></span>
-                        <span class="hand right-hand"><i class="fas fa-handshake"></i></span>
+                <div class="main__img--ipad-frame">
+                    <div class="ipad-animation-content">
+                        <div class="hands-shake">
+                            <span class="hand left-hand"><i class="fas fa-handshake"></i></span>
+                            <span class="hand right-hand"><i class="fas fa-handshake"></i></span>
+                        </div>
+                        <span class="ipad-app-title" id="ipad-app-title">Shoplink</span>
                     </div>
-                    <span class="ipad-app-title" id="ipad-app-title">Shoplink</span>
                 </div>
             </div>
             </div>
-            </div>
         </div>
     </div>
-    <!-- login.html -->
-    <div class="login-bg-container">
-        <div class="signup-container2">
-            <h1>Login</h1>
-            <!-- Example login form -->
-<form id="login-form">
-    <input type="email" id="login-email" placeholder="Email" required>
-    <button type="submit">Login</button>
-    <br>
-    <!-- Google Sign-In button -->
-<div id="g_id_onload"
-     data-client_id="842786956290-iupit5adg1633nr9ccbep7p9itpuec3v.apps.googleusercontent.com"
-     data-callback="handleGoogleLogin"
-     data-auto_prompt="false">
-</div>
-<div class="g_id_signin"
-     data-type="standard"
-     data-shape="rectangular"
-     data-theme="outline"
-     data-text="continue_with"
-     data-size="large"
-     data-logo_alignment="left">
-</div>
-</form>
-            <p class="message">Don't have an account? <a href="signup.html">Sign up</a></p>
-        </div>
-    </div>
-    <script src="./login.js"></script>
-    
     <!-- footer section -->
     <div class="footer__container">
         <div class="footer__links">
             <div class="footer__links--wrapper">
                 <div class="footer__links--items">
                     <h2>About Us</h2>
-                    <a href="/Sign-up" target="_blank">How we work</a>
-                    <a href="/Sign-up" target="_blank">Privacy policy</a>
-                    <a href="/Sign-up" target="_blank">Terms of service</a>
-                    <a href="/Sign-up" target="_blank">Terms and condition</a>
+                    <a href="#" target="_blank">How we work</a>
+                    <a href="#" target="_blank">Privacy policy</a>
+                    <a href="#" target="_blank">Terms of service</a>
+                    <a href="#" target="_blank">Terms and condition</a>
                 </div>
                 <div class="footer__links--items">
                     <h2>Social media</h2>
-                <a href="/Sign-up" target="_blank">Instagram</a>
-                <a href="/Sign-up" target="_blank">Twitter</a>
-                <a href="/Sign-up" target="_blank">Tik Tok</a>
-                <a href="/Sign-up" target="_blank">Facebook</a>
+                    <a href="#" target="_blank">Instagram</a>
+                    <a href="#" target="_blank">Twitter</a>
+                    <a href="#" target="_blank">Tik Tok</a>
+                    <a href="#" target="_blank">Facebook</a>
+                </div>
             </div>
-            </div>
-               
-                
             <div class="footer__links--wrapper">
                 <div class="footer__links--items">
                     <h2>Contact us</h2>
-                    <a href="/Sign-up" target="_blank">Whatsapp</a>
-                    <a href="/Sign-up" target="_blank">Contact</a>
-                    <a href="/Sign-up" target="_blank">Hotline</a>
-                    <a href="/Sign-up" target="_blank">Email</a>
-               </div>
-               <div class="footer__links--items"><h2>About Us</h2>
-                <a href="/Sign-up" target="_blank">How we work</a>
-                <a href="/Sign-up" target="_blank">Contact</a>
-                <a href="/Sign-up" target="_blank">Terms of service</a>
-                <a href="/Sign-up" target="_blank">Social media</a>
+                    <a href="#" target="_blank">Whatsapp</a>
+                    <a href="#" target="_blank">Contact</a>
+                    <a href="#" target="_blank">Hotline</a>
+                    <a href="#" target="_blank">Email</a>
+                </div>
+                <div class="footer__links--items">
+                    <h2>About Us</h2>
+                    <a href="#" target="_blank">How we work</a>
+                    <a href="#" target="_blank">Contact</a>
+                    <a href="#" target="_blank">Terms of service</a>
+                    <a href="#" target="_blank">Social media</a>
+                </div>
             </div>
         </div>
-               
-</div>
-<section class="social__media">
-    <div class="social__media--wrap">
-        <div class="footer__logo">
-            <a href="/" id="footer__logo">Shoplink</a>
-        </div>
-        <p class="website__rights">&copy; Shoplink 2025. All right reserved</p>
-        <div class="social__icons">
-            <a href="/" class="social__icons--links" target="_blank"><i class="fab fa-facebook"></i></a>
-            <a href="/" class="social__icons--links" target="_blank"><i class="fab fa-instagram"></i></a>
-            <a href="/" class="social__icons--links" target="_blank"><i class="fab fa-youtube"></i></a>
-            <a href="/" class="social__icons--links" target="_blank"><i class="fab fa-linkedin"></i></a>
-            <a href="/" class="social__icons--links" target="_blank"><i class="fab fa-twitter"></i></a>
+        <section class="social__media">
+            <div class="social__media--wrap">
+                <div class="footer__logo">
+                    <a href="/" id="footer__logo">Shoplink</a>
+                </div>
+                <p class="website__rights">&copy; Shoplink 2025. All right reserved</p>
+                <div class="social__icons">
+                    <a href="/" class="social__icons--links" target="_blank"><i class="fab fa-facebook"></i></a>
+                    <a href="/" class="social__icons--links" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="/" class="social__icons--links" target="_blank"><i class="fab fa-youtube"></i></a>
+                    <a href="/" class="social__icons--links" target="_blank"><i class="fab fa-linkedin"></i></a>
+                    <a href="/" class="social__icons--links" target="_blank"><i class="fab fa-twitter"></i></a>
+                </div>
             </div>
+        </section>
     </div>
-</section>
-</div>
     <script src="./index.js/index.js"></script>
     <script>
-
+document.addEventListener('DOMContentLoaded', function() {
+    const toggle = document.getElementById('navbar-toggle');
+    const menu = document.getElementById('navbar-menu');
+    toggle.addEventListener('click', function() {
+        menu.classList.toggle('active');
+    });
+    // Optional: close menu when clicking a link (for better UX)
+    document.querySelectorAll('.navbar__menu a').forEach(link => {
+        link.addEventListener('click', () => {
+            menu.classList.remove('active');
+        });
+    });
+});
 </script>
-    
 </body>
 </html>

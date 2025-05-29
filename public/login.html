@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - Shoplink</title>
-    <!-- <link rel="stylesheet" href="./css.style/style.css"> -->
+    <title>Login - Shoplink</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
@@ -14,36 +13,30 @@
             background: linear-gradient(120deg, #f9f6ff 0%, #f5e9ff 100%);
             min-height: 100vh;
         }
-        .signup-container {
+        .login-container {
             max-width: 400px;
-            margin: 40px auto 0 auto;
+            margin: 60px auto 0 auto;
             background: #fff;
             border-radius: 14px;
             box-shadow: 0 4px 24px rgba(131,58,180,0.10);
             padding: 2.5rem 2rem 2rem 2rem;
             animation: fadeInUp 0.7s cubic-bezier(.39,.575,.565,1.000);
         }
-        .signup-container h1, .signup-container h2 {
+        .login-container h1 {
             text-align: center;
             color: #7b2ff2;
-            margin-bottom: 0.5rem;
-        }
-        .signup-container h2 {
-            font-size: 1.2rem;
-            font-weight: 400;
-            letter-spacing: 1px;
             margin-bottom: 1.5rem;
         }
         .form-group {
             margin-bottom: 1.2rem;
         }
-        .form-group label {
+        label {
             display: block;
             margin-bottom: 0.3rem;
             color: #7b2ff2;
             font-weight: 500;
         }
-        input, select {
+        input {
             width: 100%;
             border: 1.5px solid #db4437;
             border-radius: 7px;
@@ -54,7 +47,7 @@
             background: #f9f6ff;
             color: #333;
         }
-        input:focus, select:focus {
+        input:focus {
             border-color: #7b2ff2;
             outline: none;
         }
@@ -156,37 +149,24 @@
     </style>
 </head>
 <body>
-    <div class="signup-container">
-        <h1>Create an Account</h1>
-        <h2>Shoplink</h2>
-        <form id="signup-form" autocomplete="off">
+    <div class="login-container">
+        <h1>Login to Shoplink</h1>
+        <form id="login-form" autocomplete="off">
             <div class="form-group">
-                <label for="username">Username</label>
-                <input id="username" name="username" type="text" required aria-required="true" />
+                <label for="login-email">Email</label>
+                <input type="email" id="login-email" name="email" required>
             </div>
             <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" name="password" required>
             </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <div class="form-group">
-                <label for="role">Role</label>
-                <select id="role" name="role" required aria-required="true">
-                  <option value="">Select Role</option>
-                  <option value="CEO">CEO</option>
-                  <option value="CUSTOMER">Customer</option>
-                </select>
-            </div>
-            <button type="submit">Sign Up</button>
+            <button type="submit">Login</button>
         </form>
 
         <!-- Google Sign-In button OUTSIDE the form -->
         <div id="g_id_onload"
              data-client_id="842786956290-iupit5adg1633nr9ccbep7p9itpuec3v.apps.googleusercontent.com"
-             data-callback="handleGoogleSignup"
+             data-callback="handleGoogleLogin"
              data-auto_prompt="false">
         </div>
         <div class="g_id_signin"
@@ -198,7 +178,7 @@
              data-logo_alignment="left">
         </div>
 
-        <p class="message">Already have an account? <a href="login.html">Log in</a></p>
+        <p class="message">Don't have an account? <a href="signup.html">Sign up</a></p>
     </div>
     
     <div id="popup-message" class="popup-message" style="display:none;">
@@ -225,59 +205,63 @@
         document.getElementById('popup-message').style.display = 'none';
     };
 
-    // Handle normal signup
-    document.getElementById('signup-form').addEventListener('submit', async function(event) {
+    // Handle normal login
+    document.getElementById('login-form').addEventListener('submit', async function(event) {
         event.preventDefault();
         document.getElementById('loading-indicator').style.display = 'flex';
-        const username = document.getElementById('username').value.trim();
-        const email = document.getElementById('email').value.trim().toLowerCase();
-        const password = document.getElementById('password').value;
-        const role = document.getElementById('role').value;
+        const email = document.getElementById('login-email').value.trim().toLowerCase();
+        const password = document.getElementById('login-password').value;
         try {
-            const res = await fetch('/api/signup', {
+            const res = await fetch('/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, email, password, role })
+                body: JSON.stringify({ email, password })
             });
             document.getElementById('loading-indicator').style.display = 'none';
             if (res.ok) {
-                showPopup('Sign up successful! Redirecting...', true);
-                setTimeout(() => { window.location.href = 'questions.html'; }, 1800);
+                showPopup('Login successful! Redirecting...', true);
+                setTimeout(() => { window.location.href = 'feed.html'; }, 1500);
             } else {
-                showPopup('Sign up failed. Please try again.', false);
+                const data = await res.json();
+                if (data && data.message && data.message.toLowerCase().includes('no account')) {
+                    showPopup('No account found. Redirecting to sign up...', false);
+                    setTimeout(() => { window.location.href = 'signup.html'; }, 2000);
+                } else {
+                    showPopup('Login failed. Please check your credentials.', false);
+                }
             }
         } catch (err) {
             document.getElementById('loading-indicator').style.display = 'none';
-            showPopup('Sign up failed. Please try again.', false);
+            showPopup('Login failed. Please try again.', false);
         }
     });
 
-    // Google signup callback
-    window.handleGoogleSignup = async function(response) {
+    // Google login callback
+    window.handleGoogleLogin = async function(response) {
         document.getElementById('loading-indicator').style.display = 'flex';
         const id_token = response.credential;
-        const role = document.getElementById('role').value;
-        if (!role) {
-            document.getElementById('loading-indicator').style.display = 'none';
-            showPopup('Please select a role before continuing with Google.', false);
-            return;
-        }
         try {
-            const res = await fetch('/api/signup/google', {
+            const res = await fetch('/api/login/google', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id_token, role })
+                body: JSON.stringify({ id_token })
             });
             document.getElementById('loading-indicator').style.display = 'none';
             if (res.ok) {
-                showPopup('Signed up with Google! Redirecting...', true);
-                setTimeout(() => { window.location.href = 'questions.html'; }, 1800);
+                showPopup('Login with Google successful! Redirecting...', true);
+                setTimeout(() => { window.location.href = 'feed.html'; }, 1500);
             } else {
-                showPopup('Google sign up failed. Please try again.', false);
+                const data = await res.json();
+                if (data && data.message && data.message.toLowerCase().includes('no account')) {
+                    showPopup('No account found. Redirecting to sign up...', false);
+                    setTimeout(() => { window.location.href = 'signup.html'; }, 2000);
+                } else {
+                    showPopup('Google login failed. Please try again.', false);
+                }
             }
         } catch (err) {
             document.getElementById('loading-indicator').style.display = 'none';
-            showPopup('Google sign up failed. Please try again.', false);
+            showPopup('Google login failed. Please try again.', false);
         }
     };
     </script>
