@@ -4,7 +4,8 @@ const path = require('path');
 const mongoose = require('mongoose');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const UserModel = require('../models/User'); // Use your User model from models/User.js
+const Post = require('../models/Post');      // Use your Post model from models/Post.js
 
 // Middleware for authentication
 async function auth(req, res, next) {
@@ -12,39 +13,12 @@ async function auth(req, res, next) {
     if (!token) return res.status(401).json({ message: 'No token' });
     try {
         const decoded = jwt.verify(token, 'YOUR_SECRET');
-        req.user = await User.findById(decoded.id);
+        req.user = await UserModel.findById(decoded.id);
         next();
     } catch (err) {
         res.status(401).json({ message: 'Invalid token' });
     }
 }
-
-// Example User and Post schemas
-const UserModel = mongoose.model('User', new mongoose.Schema({
-    username: String,
-    profilePic: String,
-    role: String,
-    followers: [String], // Array of user IDs
-    // ...other fields
-}));
-
-const Post = mongoose.model('Post', new mongoose.Schema({
-    ceoId: String,
-    imageUrl: String,
-    price: Number,
-    description: String,
-    negotiable: Boolean,
-    createdAt: { type: Date, default: Date.now }
-}));
-
-const Notification = mongoose.model('Notification', new mongoose.Schema({
-    userId: String,
-    ceoId: String,
-    postId: String,
-    content: String,
-    createdAt: { type: Date, default: Date.now },
-    read: { type: Boolean, default: false }
-}));
 
 // Multer setup for image upload
 const storage = multer.diskStorage({
@@ -97,7 +71,7 @@ router.get('/', async (req, res) => {
         const posts = await Post.find().sort({ createdAt: -1 });
         // Populate Ceo info for each post
         const postsWithAuthor = await Promise.all(posts.map(async post => {
-            const ceo = await User.findById(post.ceoId);
+            const ceo = await UserModel.findById(post.ceoId);
             return {
                 ...post.toObject(),
                 author: ceo ? {

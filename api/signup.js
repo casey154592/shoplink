@@ -2,7 +2,7 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 const { OAuth2Client } = require('google-auth-library');
 const bcrypt = require('bcrypt');
-const User = require('../models/User'); // Import your Mongoose User model
+const UserModel = require('../models/User'); // Import your Mongoose User model
 const router = express.Router();
 
 const transporter = nodemailer.createTransport({
@@ -25,12 +25,12 @@ router.post('/signup', async (req, res) => {
     }
     try {
         const emailLower = email.toLowerCase();
-        const exists = await User.findOne({ email: emailLower });
+        const exists = await UserModel.findOne({ email: emailLower });
         if (exists) {
             return res.status(409).json({ message: 'User with this email already exists.' });
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({ username, email: emailLower, password: hashedPassword, role });
+        const newUser = new UserModel({ username, email: emailLower, password: hashedPassword, role });
         await newUser.save();
         res.json({ message: 'Signup successful', username, email, role });
     } catch (err) {
@@ -56,9 +56,9 @@ router.post('/signup/google', async (req, res) => {
         const gmail = payload.email;
 
         // Check if user exists, if not, create
-        let user = await User.findOne({ email: gmail });
+        let user = await UserModel.findOne({ email: gmail });
         if (!user) {
-            user = new User({ username: payload.name || gmail, email: gmail, role });
+            user = new UserModel({ username: payload.name || gmail, email: gmail, role });
             await user.save();
         }
 

@@ -1,5 +1,5 @@
 const express = require('express');
-const User = require('../models/User');
+const UserModel = require('../models/User');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const { OAuth2Client } = require('google-auth-library');
@@ -13,7 +13,7 @@ router.post('/login', async (req, res) => {
         return res.status(400).json({ message: 'Email and password are required.' });
     }
     try {
-        const user = await User.findOne({ email: email.toLowerCase() });
+        const user = await UserModel.findOne({ email: email.toLowerCase() });
         if (!user) {
             return res.status(401).json({ message: 'No account found with this email.' });
         }
@@ -40,7 +40,7 @@ router.post('/login/google', async (req, res) => {
         });
         const payload = ticket.getPayload();
         const email = payload.email;
-        const user = await User.findOne({ email: email.toLowerCase() });
+        const user = await UserModel.findOne({ email: email.toLowerCase() });
         if (!user) {
             return res.status(401).json({ message: 'No account found with this email.' });
         }
