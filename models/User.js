@@ -19,4 +19,20 @@ userSchema.pre('save', async function(next) {
     next();
 });
 
-module.exports = mongoose.model('User', userSchema);
+// Prevent OverwriteModelError
+let User;
+try {
+    User = mongoose.model('User');
+} catch (err) {
+    if (err.name === 'OverwriteModelError') {
+        console.error('OverwriteModelError:', err.message);
+        User = mongoose.model('User');
+    } else if (err.name === 'MissingSchemaError') {
+        User = mongoose.model('User', userSchema);
+    } else {
+        console.error('Mongoose model error:', err.message);
+        User = mongoose.model('User', userSchema);
+    }
+}
+
+module.exports = User;
