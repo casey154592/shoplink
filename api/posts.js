@@ -91,23 +91,38 @@ router.post('/', auth, upload.single('productImage'), async (req, res) => {
     }
 });
 
-// Get all product posts (for feed)
+// GET /api/posts
 router.get('/', async (req, res) => {
     try {
         const posts = await Post.find().sort({ createdAt: -1 });
+        // Populate Ceo info for each post
         const postsWithAuthor = await Promise.all(posts.map(async post => {
-            const ceo = await UserModel.findById(post.ceoId);
+            const ceo = await User.findById(post.ceoId);
             return {
                 ...post.toObject(),
                 author: ceo ? {
+                    id: ceo._id,
                     username: ceo.username,
-                    profilePictureUrl: ceo.profilePic // or whatever your field is
-                } : { username: 'Unknown', profilePictureUrl: './default-avatar.png' }
+                    profilePictureUrl: ceo.profilePic,
+                    email: ceo.email,
+                    followers: ceo.followers || []
+                } : null
             };
         }));
         res.json(postsWithAuthor);
     } catch (err) {
         res.status(500).json({ message: 'Failed to fetch posts', error: err.message });
+    }
+});
+
+// GET /api/posts/:id
+router.get('/:id', async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+        if (!post) return res.status(404).json({ message: 'Post not found' });
+        res.json(post);
+    } catch (err) {
+        res.status(500).json({ message: 'Failed to fetch post', error: err.message });
     }
 });
 

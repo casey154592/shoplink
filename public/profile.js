@@ -87,5 +87,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Profile picture upload preview
+    const fileInput = document.getElementById('profile-picture');
+    const previewImg = document.getElementById('profile-picture-preview-img');
+
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                previewImg.src = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
     loadUserPosts();
 });

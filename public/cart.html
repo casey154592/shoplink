@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Cart - Shoplink</title>
+    <link rel="stylesheet" href="./css.style/style.css">
+    <style>
+        body { background: #f9f6ff; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; }
+        .cart-container { max-width: 600px; margin: 2.5rem auto 1.5rem auto; background: #fff; border-radius: 14px; box-shadow: 0 4px 18px rgba(123,47,242,0.10); padding: 2rem 2.2rem 1.5rem 2.2rem; }
+        .cart-title { color: #7b2ff2; text-align: center; margin-bottom: 1.5rem; font-size: 2rem; font-weight: 700; }
+        .cart-item { display: flex; align-items: center; gap: 1.2rem; border-bottom: 1px solid #eee; padding: 1rem 0; }
+        .cart-item:last-child { border-bottom: none; }
+        .cart-item-img { width: 80px; height: 80px; border-radius: 10px; object-fit: cover; border: 1.5px solid #7b2ff2; }
+        .cart-item-details { flex: 1; }
+        .cart-item-title { font-weight: 600; color: #7b2ff2; font-size: 1.1rem; }
+        .cart-item-desc { color: #555; font-size: 0.98rem; margin: 0.3rem 0; }
+        .cart-item-price { color: #f357a8; font-weight: 700; }
+        .cart-item-neg { font-size: 0.9rem; border-radius: 6px; padding: 0.1rem 0.6rem; margin-left: 0.5rem; }
+        .cart-buy-btn { background: linear-gradient(90deg, #7b2ff2 0%, #f357a8 100%); color: #fff; border: none; border-radius: 6px; padding: 0.6rem 1.2rem; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 0.5rem; }
+        .cart-buy-btn:hover { background: linear-gradient(90deg, #f357a8 0%, #7b2ff2 100%); }
+        .empty-cart { text-align: center; color: #888; margin-top: 2rem; }
+    </style>
+</head>
+<body>
+    <div class="cart-container">
+        <div class="cart-title">Your Cart</div>
+        <div id="cart-items"></div>
+    </div>
+    <script src="./cart.js"></script>
+</body>
+</html>
