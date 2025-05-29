@@ -1,30 +1,21 @@
-
-<body>
-    <!-- Ceo Product Post Card -->
-<div class="ceo-post-card" id="ceo-post-card" style="display:none;">
-    <form id="ceo-post-form" enctype="multipart/form-data">
-        <label>
-            Product Image:
-            <input type="file" name="productImage" accept="image/*" required>
-        </label>
-        <label>
-            Price Tag:
-            <input type="number" name="price" min="0" step="0.01" placeholder="Enter price" required>
-        </label>
-        <label>
-            Description:
-            <textarea name="description" rows="3" placeholder="Describe your product" required></textarea>
-        </label>
-        <label class="negotiable-toggle">
-            Negotiable:
-            <input type="checkbox" name="negotiable" id="negotiable">
-            <span class="toggle-slider"></span>
-            <span id="negotiable-label" style="margin-left:10px;color:#7b2ff2;font-weight:600;">Not Negotiable</span>
-        </label>
-        <button type="submit">Post Product</button>
-    </form>
-</div>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shoplink</title>
+    <!-- <link rel="stylesheet" href="./css.style/style.css"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-C7Y4Z4F2YG"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-C7Y4Z4F2YG');
+    </script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+ 
 <style>
 .ceo-post-card {
     background: #fff;
@@ -105,26 +96,33 @@
     transform: translateX(18px);
 }
 </style>
+</head>
 
-<script>
-// Show Ceo post card only for Ceo users (example, adjust as needed)
-document.addEventListener('DOMContentLoaded', function() {
-    // Replace with your actual user role check
-    const userRole = localStorage.getItem('role'); // or get from your auth/session
-    if (userRole === 'ceo') {
-        document.getElementById('ceo-post-card').style.display = 'block';
-    }
-
-    // Negotiable toggle label update
-    const negotiableCheckbox = document.getElementById('negotiable');
-    const negotiableLabel = document.getElementById('negotiable-label');
-    if (negotiableCheckbox && negotiableLabel) {
-        negotiableCheckbox.addEventListener('change', function() {
-            negotiableLabel.textContent = this.checked ? 'Negotiable' : 'Not Negotiable';
-            negotiableLabel.style.color = this.checked ? '#7b2ff2' : '#888';
-        });
-    }
-});
-</script>    
+<body>
+    <!-- Ceo Product Post Card -->
+<div class="ceo-post-card" id="ceo-post-card" style="display:none;">
+    <form id="ceo-post-form" enctype="multipart/form-data">
+        <label>
+            Product Image:
+            <input type="file" name="productImage" accept="image/*" required>
+        </label>
+        <label>
+            Price:
+            <input type="number" name="price" required>
+        </label>
+        <label>
+            Description:
+            <textarea name="description" required></textarea>
+        </label>
+        <label class="negotiable-toggle">
+            <input type="checkbox" id="negotiable" name="negotiable">
+            <span class="toggle-slider"></span>
+            <span id="negotiable-label" style="margin-left:8px;color:#888;">Not Negotiable</span>
+        </label>
+        <button type="submit">Post Product</button>
+    </form>
+</div>
+<script src="ceo.js"></script>
+    
 </body>
 </html>
