@@ -5,12 +5,28 @@ const app = express();
 const path = require('path');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
+const auth = require('./middleware/auth');
 
 app.use(express.json());
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: [
+        "'self'",
+        "https://accounts.google.com",
+        "https://apis.google.com",
+        "https://www.googletagmanager.com",
+        "https://www.google-analytics.com"
+      ],
+      // ...other directives as needed
+    }
+  }
+}));
 
 // This line serves all files in the public folder as static assets:
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static('uploads'));
 
 const signup = require('./api/signup');
 app.use('/api', signup.router);
@@ -24,6 +40,13 @@ app.use('/api', profileRoute);
 
 const postsRoute = require('./api/posts');
 app.use('/api', postsRoute);
+
+const usersRouter = require('./api/users');
+app.use('/api/users', usersRouter);
+
+// Add your follow and notifications routes here
+app.post('/follow/:ceoId', auth, async (req, res) => { /* your implementation here */ });
+app.get('/notifications', auth, async (req, res) => { /* your implementation here */ });
 
 // Global 404 handler for unknown API routes
 app.use('/api', (req, res, next) => {
