@@ -100,7 +100,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
     if (notifIcon) {
-        notifIcon.addEventListener('click', loadNotifications);
+        notifIcon.addEventListener('click', function() {
+            window.location.href = 'notifications.html';
+        });
     }
 
     // Initial load

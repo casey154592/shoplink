@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Notifications - Shoplink</title>
+    <link rel="stylesheet" href="./css.style/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: #f9f6ff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .notifications-container {
+            max-width: 480px;
+            margin: 2.5rem auto 1.5rem auto;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px rgba(123,47,242,0.10);
+            padding: 2rem 2.2rem 1.5rem 2.2rem;
+        }
+        .notifications-title {
+            color: #7b2ff2;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        .notification-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            border-bottom: 1px solid #eee;
+            padding: 1rem 0;
+        }
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+        .notification-icon {
+            color: #7b2ff2;
+            font-size: 1.4rem;
+            margin-top: 2px;
+        }
+        .notification-content {
+            flex: 1;
+        }
+        .notification-message {
+            color: #333;
+            font-size: 1.05rem;
+        }
+        .notification-date {
+            color: #888;
+            font-size: 0.92rem;
+            margin-top: 0.2rem;
+        }
+        .empty-notifications {
+            text-align: center;
+            color: #888;
+            margin-top: 2rem;
+        }
+        @media (max-width: 600px) {
+            .notifications-container {
+                max-width: 98vw;
+                padding: 1rem 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="notifications-container">
+        <div class="notifications-title"><i class="fa fa-bell"></i> Notifications</div>
+        <ul id="notification-list" class="notification-list"></ul>
+        <div id="empty-notifications" class="empty-notifications" style="display:none;">No notifications yet.</div>
+    </div>
+    <script src="./notification.js"></script>
+</body>
+</html>

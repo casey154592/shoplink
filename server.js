@@ -8,7 +8,13 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https://accounts.google.com"],
+      scriptSrc: [
+        "'self'",
+        "https://accounts.google.com",
+        "https://apis.google.com",
+        "https://www.googletagmanager.com",
+        "https://www.google-analytics.com"
+      ],
       // ...other directives as needed
     }
   }
