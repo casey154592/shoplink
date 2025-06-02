@@ -479,18 +479,23 @@
                 transform: translateY(0) scaleY(1);
                 animation: dropdownIn 0.35s cubic-bezier(.39,.575,.565,1.000);
             }
-            @keyframes dropdownIn {
-                from { opacity: 0; transform: translateY(-20px) scaleY(0.95);}
-                to   { opacity: 1; transform: translateY(0) scaleY(1);}
-            }
             .navbar__item, .navbar__btn {
                 width: 100%;
                 padding: 0.7rem 1.5rem;
+                box-sizing: border-box;
             }
             .navbar__links, .button {
                 width: 100%;
                 display: block;
                 text-align: left;
+                font-size: 1.1rem;
+                box-sizing: border-box;
+            }
+            .navbar__btn .button {
+                width: 100%;
+                margin: 0.5rem 0;
+                text-align: center;
+                padding: 0.8rem 0;
                 font-size: 1.1rem;
             }
             /* Fit main content below navbar */
@@ -648,11 +653,20 @@
             .navbar__item, .navbar__btn {
                 width: 100%;
                 padding: 0.7rem 1.5rem;
+                box-sizing: border-box;
             }
             .navbar__links, .button {
                 width: 100%;
                 display: block;
                 text-align: left;
+                font-size: 1.1rem;
+                box-sizing: border-box;
+            }
+            .navbar__btn .button {
+                width: 100%;
+                margin: 0.5rem 0;
+                text-align: center;
+                padding: 0.8rem 0;
                 font-size: 1.1rem;
             }
             /* Fit main content below navbar */

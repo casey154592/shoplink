@@ -104,3 +104,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     loadUserPosts();
 });
+
+document.getElementById('delete-account-btn').onclick = async function() {
+    if (!confirm('Are you sure you want to delete your account? This action cannot be undone.')) return;
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user || !user.id) return alert('User not found.');
+    const res = await fetch(`/api/users/${user.id}`, { method: 'DELETE' });
+    if (res.ok) {
+        localStorage.removeItem('user');
+        alert('Account deleted.');
+        window.location.href = 'signup.html';
+    } else {
+        alert('Failed to delete account.');
+    }
+};
