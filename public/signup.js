@@ -27,7 +27,16 @@
                 body: JSON.stringify({ username, email, password, role })
             });
             document.getElementById('loading-indicator').style.display = 'none';
+            // After successful signup
             if (res.ok) {
+                const data = await res.json();
+                localStorage.setItem('user', JSON.stringify({
+                    id: data.id,
+                    username: data.username,
+                    email: data.email,
+                    role: data.role,
+                    token: data.token
+                }));
                 showPopup('Sign up successful! Redirecting...', true);
                 setTimeout(() => { window.location.href = 'questions.html'; }, 1800);
             } else {

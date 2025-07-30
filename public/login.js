@@ -1,4 +1,4 @@
- // Show popup message
+// Show popup message
     function showPopup(msg, isSuccess = true) {
         const popup = document.getElementById('popup-message');
         const popupText = document.getElementById('popup-text');
@@ -26,6 +26,14 @@
             });
             document.getElementById('loading-indicator').style.display = 'none';
             if (res.ok) {
+                const data = await res.json();
+                localStorage.setItem('user', JSON.stringify({
+                    id: data.id,
+                    username: data.username,
+                    email: data.email,
+                    role: data.role,
+                    token: data.token
+                }));
                 showPopup('Login successful! Redirecting...', true);
                 setTimeout(() => { window.location.href = 'feed.html'; }, 1500);
             } else {
@@ -71,4 +79,3 @@
             showPopup('Google login failed. Please try again.', false);
         }
     };
-   

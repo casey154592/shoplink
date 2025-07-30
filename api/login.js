@@ -3,7 +3,9 @@ const UserModel = require('../models/User');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const { OAuth2Client } = require('google-auth-library');
+const jwt = require('jsonwebtoken');
 const GOOGLE_CLIENT_ID = '842786956290-iupit5adg1633nr9ccbep7p9itpuec3v.apps.googleusercontent.com';
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 // Standard login
@@ -21,7 +23,16 @@ router.post('/login', async (req, res) => {
         if (!isMatch) {
             return res.status(401).json({ message: 'Invalid email or password.' });
         }
-        res.json({ message: 'Login successful', username: user.username, role: user.role, email: user.email });
+        // Generate JWT token
+        const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+        res.json({ 
+            message: 'Login successful',
+            id: user._id,
+            username: user.username,
+            role: user.role,
+            email: user.email,
+            token
+        });
     } catch (err) {
         res.status(500).json({ message: 'Server error' });
     }
@@ -44,7 +55,16 @@ router.post('/login/google', async (req, res) => {
         if (!user) {
             return res.status(401).json({ message: 'No account found with this email.' });
         }
-        res.json({ message: 'Login successful', username: user.username, role: user.role, email: user.email });
+        // Generate JWT token
+        const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+        res.json({ 
+            message: 'Login successful',
+            id: user._id,
+            username: user.username,
+            role: user.role,
+            email: user.email,
+            token
+        });
     } catch (err) {
         res.status(401).json({ message: 'Invalid Google token or login failed.' });
     }

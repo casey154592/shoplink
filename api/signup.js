@@ -2,6 +2,7 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 const { OAuth2Client } = require('google-auth-library');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const UserModel = require('../models/User'); // Import your Mongoose User model
 const router = express.Router();
 
@@ -13,6 +14,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
 // Signup with email/password
 router.post('/signup', async (req, res) => {
@@ -32,7 +34,16 @@ router.post('/signup', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new UserModel({ username, email: emailLower, password: hashedPassword, role });
         await newUser.save();
-        res.json({ message: 'Signup successful', username, email, role });
+        // Generate JWT token
+        const token = jwt.sign({ id: newUser._id, email: newUser.email, role: newUser.role }, JWT_SECRET, { expiresIn: '7d' });
+        res.json({ 
+            message: 'Signup successful',
+            id: newUser._id,
+            username: newUser.username,
+            role: newUser.role,
+            email: newUser.email,
+            token
+        });
     } catch (err) {
         console.error('Signup error:', err);
         res.status(500).json({ message: 'Server error' });
@@ -61,22 +72,16 @@ router.post('/signup/google', async (req, res) => {
             user = new UserModel({ username: payload.name || gmail, email: gmail, role });
             await user.save();
         }
-
-        // Send welcome email with link to feed
-        const mailOptions = {
-            from: `"Shoplink" <${process.env.EMAIL_USER}>`,
-            to: gmail,
-            subject: 'Welcome to Shoplink!',
-            html: `
-                <h2>Welcome to Shoplink!</h2>
-                <p>Thank you for signing up as a ${role}.</p>
-                <p><a href="https://shoplink-h0jk.onrender.com/feed.html">Click here to continue</a></p>
-            `
-        };
-
-        await transporter.sendMail(mailOptions);
-        console.log(`Welcome email sent to ${gmail}`);
-        res.json({ message: 'Welcome email sent.' });
+        // Generate JWT token
+        const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+        res.json({ 
+            message: 'Signup successful',
+            id: user._id,
+            username: user.username,
+            role: user.role,
+            email: user.email,
+            token
+        });
     } catch (err) {
         console.error('Google signup error:', err);
         res.status(500).json({ message: 'Failed to sign up with Google.' });
