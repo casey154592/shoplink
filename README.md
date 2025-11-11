@@ -25,11 +25,11 @@ shoplink
 ## Setup Instructions
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/shop-with-gloria.git
+   git clone https://github.com/yourusername/shoplink.git
    ```
 2. Navigate to the project directory:
    ```
-   cd shop-with-gloria
+   cd shoplink
    ```
 3. Install necessary dependencies (if applicable):
    ```
