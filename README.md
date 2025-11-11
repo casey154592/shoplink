@@ -1,11 +1,11 @@
-# Shop with Gloria
+# Shoplink
 
 ## Overview
-"Shop with Gloria" is a web application designed for an online shopping experience. It allows users to browse products, learn about services, and sign up for an account to enhance their shopping experience.
+"Shoplink" is a web application designed for an online shopping experience. It allows users to browse products, learn about services, and sign up for an account to enhance their shopping experience.
 
 ## Project Structure
 ```
-shop-with-gloria
+shoplink
 ├── api
 │   └── signup.js          # API endpoint for user sign-up
 ├── app.js                 # Main JavaScript file for client-side logic
