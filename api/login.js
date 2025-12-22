@@ -17,7 +17,7 @@ router.post('/login', async (req, res) => {
     try {
         const user = await UserModel.findOne({ email: email.toLowerCase() });
         if (!user) {
-            return res.status(401).json({ message: 'No account found with this email.' });
+            return res.status(401).json({ message: 'Invalid email or password.' });
         }
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {

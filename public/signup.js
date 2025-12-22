@@ -15,32 +15,30 @@
     // Handle normal signup
     document.getElementById('signup-form').addEventListener('submit', async function(event) {
         event.preventDefault();
-        document.getElementById('loading-indicator').style.display = 'flex';
+        const loader = document.getElementById('loading-indicator');loader.style.display = 'flex';
+        try {
+
         const username = document.getElementById('username').value.trim();
         const email = document.getElementById('email').value.trim().toLowerCase();
         const password = document.getElementById('password').value;
         const role = document.getElementById('role').value;
-        try {
+
             const res = await fetch('/api/signup', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json' },    
                 body: JSON.stringify({ username, email, password, role })
             });
-            document.getElementById('loading-indicator').style.display = 'none';
+            const data = await res.json();
+            // document.getElementById('loading-indicator').style.display = 'none';
             // After successful signup
+            loader.style.display = 'none';
+            
             if (res.ok) {
-                const data = await res.json();
-                localStorage.setItem('user', JSON.stringify({
-                    id: data.id,
-                    username: data.username,
-                    email: data.email,
-                    role: data.role,
-                    token: data.token
-                }));
+                localStorage.setItem('user', JSON.stringify(data));
                 showPopup('Sign up successful! Redirecting...', true);
                 setTimeout(() => { window.location.href = 'questions.html'; }, 1800);
             } else {
-                showPopup('Sign up failed. Please try again.', false);
+                showPopup(data.message || 'Sign up failed. Please try again.', false);
             }
         } catch (err) {
             document.getElementById('loading-indicator').style.display = 'none';

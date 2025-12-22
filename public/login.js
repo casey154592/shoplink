@@ -25,25 +25,16 @@
                 body: JSON.stringify({ email, password })
             });
             document.getElementById('loading-indicator').style.display = 'none';
+            const data = await res.json();
             if (res.ok) {
-                const data = await res.json();
-                localStorage.setItem('user', JSON.stringify({
-                    id: data.id,
-                    username: data.username,
-                    email: data.email,
-                    role: data.role,
-                    token: data.token
-                }));
+                
+                localStorage.setItem('user', JSON.stringify(data));
                 showPopup('Login successful! Redirecting...', true);
                 setTimeout(() => { window.location.href = 'feed.html'; }, 1500);
-            } else {
-                const data = await res.json();
-                if (data && data.message && data.message.toLowerCase().includes('no account')) {
-                    showPopup('No account found. Redirecting to sign up...', false);
-                    setTimeout(() => { window.location.href = 'signup.html'; }, 2000);
-                } else {
-                    showPopup('Login failed. Please check your credentials.', false);
-                }
+            } 
+            else {
+                    showPopup(data.message||'Login failed. Please check your credentials.', false);
+                
             }
         } catch (err) {
             document.getElementById('loading-indicator').style.display = 'none';
