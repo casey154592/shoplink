@@ -34,6 +34,9 @@ app.use('/api', signup.router);
 const loginRoute = require('./api/login');
 app.use('/api', loginRoute);
 
+// Set up invalidated tokens in auth middleware
+auth.setInvalidatedTokens(loginRoute.invalidatedTokens);
+
 // Mount the profile API
 const profileRoute = require('./api/profile');
 app.use('/api', profileRoute);

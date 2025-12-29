@@ -29,6 +29,7 @@
             if (res.ok) {
                 
                 localStorage.setItem('user', JSON.stringify(data));
+                localStorage.setItem('sessionStart', new Date().getTime().toString());
                 showPopup('Login successful! Redirecting...', true);
                 setTimeout(() => { window.location.href = 'feed.html'; }, 1500);
             } 

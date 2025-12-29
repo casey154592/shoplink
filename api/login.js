@@ -4,9 +4,13 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const { OAuth2Client } = require('google-auth-library');
 const jwt = require('jsonwebtoken');
+const auth = require('../middleware/auth');
 const GOOGLE_CLIENT_ID = '842786956290-iupit5adg1633nr9ccbep7p9itpuec3v.apps.googleusercontent.com';
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+
+// Store invalidated tokens to prevent reuse
+const invalidatedTokens = new Set();
 
 // Standard login
 router.post('/login', async (req, res) => {
@@ -69,5 +73,29 @@ router.post('/login/google', async (req, res) => {
         res.status(401).json({ message: 'Invalid Google token or login failed.' });
     }
 });
+
+// Logout route
+router.post('/logout', auth, async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        
+        if (token) {
+            // Add token to invalidated tokens set
+            invalidatedTokens.add(token);
+            
+            // Optionally, set a timeout to remove expired tokens from memory after 7 days
+            setTimeout(() => {
+                invalidatedTokens.delete(token);
+            }, 7 * 24 * 60 * 60 * 1000); // 7 days
+        }
+        
+        res.json({ message: 'Logout successful' });
+    } catch (err) {
+        res.status(500).json({ message: 'Logout failed' });
+    }
+});
+
+// Export invalidated tokens for use in auth middleware
+router.invalidatedTokens = invalidatedTokens;
 
 module.exports = router;

@@ -7,6 +7,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     const notifBadge = document.getElementById('notification-badge');
     const notifIcon = document.getElementById('notification-icon');
 
+    // Check if user is authenticated, if not redirect to login
+    if (!user || !token) {
+        localStorage.removeItem('user');
+        localStorage.removeItem('cart');
+        window.location.href = 'login.html';
+        return;
+    }
+
     // Fetch and render posts (with Ceo info, follow button, add to cart)
     async function loadFeed() {
         feedPosts.innerHTML = '<div>Loading...</div>';
@@ -112,10 +120,32 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Logout functionality
     const sideLogoutBtn = document.getElementById('side-logout-btn');
     if (sideLogoutBtn) {
-        sideLogoutBtn.addEventListener('click', function(e) {
+        sideLogoutBtn.addEventListener('click', async function(e) {
             e.preventDefault();
-            localStorage.removeItem('user');
-            window.location.href = 'index.html';
+            try {
+                // Call logout API endpoint to invalidate session on server
+                const res = await fetch('/api/logout', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                // Clear all user data from localStorage
+                localStorage.removeItem('user');
+                localStorage.removeItem('cart');
+                localStorage.removeItem('notifications');
+                
+                // Redirect to login page
+                window.location.href = 'login.html';
+            } catch (err) {
+                console.error('Logout error:', err);
+                // Even if logout fails, clear local data and redirect
+                localStorage.removeItem('user');
+                localStorage.removeItem('cart');
+                window.location.href = 'login.html';
+            }
         });
     }
 
@@ -232,4 +262,27 @@ document.addEventListener('DOMContentLoaded', async function() {
             sideMenu.classList.remove('active');
         }
     });
+});
+
+// Logout user when leaving the feed page
+window.addEventListener('beforeunload', function() {
+    // This will log out the user when they navigate away from the feed page
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user && user.token) {
+        // Send logout request to server
+        fetch('/api/logout', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${user.token}`
+            },
+            // Use keepalive to ensure request completes even on page unload
+            keepalive: true
+        }).catch(err => console.error('Logout error on page unload:', err));
+        
+        // Clear localStorage
+        localStorage.removeItem('user');
+        localStorage.removeItem('cart');
+        localStorage.removeItem('notifications');
+    }
 });
