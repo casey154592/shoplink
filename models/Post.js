@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
 
 const postSchema = new mongoose.Schema({
-    content: { type: String, required: true },
-    videoUrl: { type: String, default: '' },
-    author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    ceoId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    imageUrl: { type: String, required: true },
+    price: { type: Number, required: true },
+    description: { type: String, required: true },
+    negotiable: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now }
 });
 

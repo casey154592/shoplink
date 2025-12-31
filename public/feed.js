@@ -117,6 +117,98 @@ document.addEventListener('DOMContentLoaded', async function() {
     loadFeed();
     if (notifBadge) loadNotifications();
 
+    // Post Creation Modal Functionality
+    const addPostBtn = document.getElementById('add-post-btn');
+    const postModal = document.getElementById('post-modal');
+    const postModalClose = document.getElementById('post-modal-close');
+    const createPostForm = document.getElementById('create-post-form');
+    const postSubmitBtn = document.getElementById('post-submit-btn');
+    const postLoading = document.getElementById('post-loading');
+
+    // Open modal
+    if (addPostBtn) {
+        addPostBtn.addEventListener('click', function() {
+            // Check if user is CEO (only CEOs can create posts)
+            if (userRole !== 'CEO') {
+                alert('Only CEOs can create product posts.');
+                return;
+            }
+            postModal.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        });
+    }
+
+    // Close modal
+    if (postModalClose) {
+        postModalClose.addEventListener('click', function() {
+            postModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            createPostForm.reset();
+        });
+    }
+
+    // Close modal when clicking outside
+    if (postModal) {
+        postModal.addEventListener('click', function(e) {
+            if (e.target === postModal) {
+                postModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                createPostForm.reset();
+            }
+        });
+    }
+
+    // Handle post creation form submission
+    if (createPostForm) {
+        createPostForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            postSubmitBtn.disabled = true;
+            postSubmitBtn.textContent = 'Creating...';
+            postLoading.style.display = 'block';
+
+            try {
+                const formData = new FormData();
+                formData.append('description', document.getElementById('post-description').value);
+                formData.append('price', document.getElementById('post-price').value);
+                formData.append('negotiable', document.getElementById('post-negotiable').value);
+
+                const imageInput = document.getElementById('post-image');
+                if (imageInput.files[0]) {
+                    formData.append('productImage', imageInput.files[0]);
+                }
+
+                const response = await fetch('/api/posts', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Post created successfully!');
+                    postModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                    createPostForm.reset();
+                    loadFeed(); // Refresh the feed to show the new post
+                } else {
+                    alert(result.message || 'Failed to create post');
+                }
+
+            } catch (error) {
+                console.error('Post creation error:', error);
+                alert('An error occurred while creating your post. Please try again.');
+            } finally {
+                postSubmitBtn.disabled = false;
+                postSubmitBtn.textContent = 'Create Post';
+                postLoading.style.display = 'none';
+            }
+        });
+    }
+
     // Logout functionality
     const sideLogoutBtn = document.getElementById('side-logout-btn');
     if (sideLogoutBtn) {

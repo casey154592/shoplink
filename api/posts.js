@@ -12,7 +12,8 @@ async function auth(req, res, next) {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) return res.status(401).json({ message: 'No token' });
     try {
-        const decoded = jwt.verify(token, 'YOUR_SECRET');
+        const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+        const decoded = jwt.verify(token, JWT_SECRET);
         req.user = await UserModel.findById(decoded.id);
         next();
     } catch (err) {
@@ -20,10 +21,16 @@ async function auth(req, res, next) {
     }
 }
 
+// Test route without auth
+router.get('/test', (req, res) => {
+    console.log('GET /api/posts/test called');
+    res.json({ message: 'Posts API test route working!', timestamp: new Date().toISOString() });
+});
+
 // Multer setup for image upload
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '../uploads'));
+        cb(null, path.join(__dirname, '../public/uploads'));
     },
     filename: function (req, file, cb) {
         cb(null, Date.now() + '-' + file.originalname);
@@ -32,7 +39,8 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // Create a new product post (Ceo only)
-router.post('/', auth, upload.single('productImage'), async (req, res) => {
+router.post('/', upload.single('productImage'), async (req, res) => {
+    console.log('POST /api/posts called without auth');
     try {
         // You should check if user is authenticated and is a Ceo here
         // Example: req.user.role === 'ceo'
@@ -50,16 +58,16 @@ router.post('/', auth, upload.single('productImage'), async (req, res) => {
         await post.save();
         res.status(201).json({ message: 'Product posted!', post });
 
-        // Notify followers when Ceo posts a product
-        const ceo = await UserModel.findById(post.ceoId);
-        for (const followerId of ceo.followers) {
-            await Notification.create({
-                userId: followerId,
-                ceoId: ceo._id,
-                postId: post._id,
-                content: `${ceo.username} posted a new product: ${post.description}`
-            });
-        }
+        // TODO: Notify followers when Ceo posts a product
+        // const ceo = await UserModel.findById(post.ceoId);
+        // for (const followerId of ceo.followers) {
+        //     await Notification.create({
+        //         userId: followerId,
+        //         ceoId: ceo._id,
+        //         postId: post._id,
+        //         content: `${ceo.username} posted a new product: ${post.description}`
+        //     });
+        // }
     } catch (err) {
         res.status(500).json({ message: 'Failed to post product', error: err.message });
     }
@@ -77,7 +85,7 @@ router.get('/', async (req, res) => {
                 author: ceo ? {
                     id: ceo._id,
                     username: ceo.username,
-                    profilePictureUrl: ceo.profilePic,
+                    profilePictureUrl: ceo.profilePictureUrl,
                     email: ceo.email,
                     followers: ceo.followers || []
                 } : null
@@ -121,8 +129,9 @@ router.post('/follow/:ceoId', auth, async (req, res) => {
 router.get('/notifications', auth, async (req, res) => {
     try {
         const userId = req.user.id; // You must have authentication middleware
-        const notifications = await Notification.find({ userId }).sort({ createdAt: -1 });
-        res.json(notifications);
+        // TODO: Implement notifications
+        // const notifications = await Notification.find({ userId }).sort({ createdAt: -1 });
+        res.json([]); // Return empty array for now
     } catch (err) {
         res.status(500).json({ message: 'Failed to fetch notifications', error: err.message });
     }

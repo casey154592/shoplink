@@ -1,22 +1,45 @@
 const express = require('express');
 const multer = require('multer');
 const UserModel = require('../models/User');
+const auth = require('../middleware/auth');
 const router = express.Router();
 
-const upload = multer({ dest: 'public/uploads/' });
+const upload = multer({ 
+    dest: 'public/uploads/',
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only image files are allowed!'), false);
+        }
+    },
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB limit
+    }
+});
 
 // Update profile (username, bio, profile picture)
-router.put('/profile', upload.single('profilePicture'), async (req, res) => {
-    const { email, username, bio } = req.body;
-    if (!email || !username) {
-        return res.status(400).json({ message: 'Email and username are required.' });
+router.put('/profile', auth, upload.single('profilePicture'), async (req, res) => {
+    const { username, bio } = req.body;
+    if (!username) {
+        return res.status(400).json({ message: 'Username is required.' });
     }
+    
+    // Handle multer errors
+    if (req.fileValidationError) {
+        return res.status(400).json({ message: req.fileValidationError });
+    }
+    
     try {
         const update = { username, bio: bio || '' };
         if (req.file) {
             update.profilePictureUrl = '/uploads/' + req.file.filename;
         }
-        const user = await UserModel.findOneAndUpdate({ email }, update, { new: true });
+        const user = await UserModel.findOneAndUpdate(
+            { _id: req.user.id }, 
+            update, 
+            { new: true }
+        );
         if (!user) {
             return res.status(404).json({ message: 'User not found.' });
         }
@@ -28,14 +51,14 @@ router.put('/profile', upload.single('profilePicture'), async (req, res) => {
 });
 
 // Save answers to questions
-router.post('/profile/questions', async (req, res) => {
-    const { email, answers } = req.body;
-    if (!email || !answers) {
-        return res.status(400).json({ message: 'Email and answers are required.' });
+router.post('/profile/questions', auth, async (req, res) => {
+    const { answers } = req.body;
+    if (!answers) {
+        return res.status(400).json({ message: 'Answers are required.' });
     }
     try {
         const user = await UserModel.findOneAndUpdate(
-            { email },
+            { _id: req.user.id },
             { profileAnswers: answers },
             { new: true }
         );

@@ -8,13 +8,14 @@ const userSchema = new mongoose.Schema({
     role:     { type: String, required: true },
     profileAnswers: { type: Object, default: {} },
     bio: { type: String, default: '' },
-    profilePictureUrl: { type: String, default: '' }
+    profilePictureUrl: { type: String, default: '' },
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
 
 // Add this pre-save hook:
 userSchema.pre('save', async function(next) {
     if (this.isModified('password')) {
-        this.password = bcrypt.hash(this.password, 10);
+        this.password = await bcrypt.hash(this.password, 10);
     }
     next();
 });

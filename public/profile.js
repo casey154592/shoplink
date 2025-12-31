@@ -1,8 +1,35 @@
 document.addEventListener('DOMContentLoaded', function() {
     const user = JSON.parse(localStorage.getItem('user'));
     const token = user?.token;
+    
+    // Check if user is logged in when page loads
+    if (!user || !token) {
+        alert('You must be logged in to access your profile.');
+        window.location.href = 'login.html';
+        return;
+    }
+    
     const postsContainer = document.getElementById('posts-container');
     const postsLoading = document.getElementById('posts-loading');
+
+    // Load user profile data into form
+    function loadUserProfile() {
+        if (!user) return;
+
+        document.getElementById('profile-username').value = user.username || '';
+        document.getElementById('profile-email').value = user.email || '';
+        document.getElementById('profile-role').value = user.role || '';
+        document.getElementById('profile-bio').value = user.bio || '';
+
+        // Set profile picture preview
+        const previewImg = document.getElementById('profile-picture-preview-img');
+        if (user.profilePictureUrl) {
+            previewImg.src = user.profilePictureUrl;
+        } else {
+            // Use initials if no profile picture
+            previewImg.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username || 'User')}&background=7b2ff2&color=fff`;
+        }
+    }
 
     function showPostsLoading(show) {
         if (postsLoading) postsLoading.style.display = show ? 'flex' : 'none';
@@ -102,7 +129,90 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Handle profile form submission
+    document.getElementById('profile-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const submitBtn = document.getElementById('profile-submit-btn');
+        const loadingDiv = document.getElementById('profile-loading');
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Updating...';
+        loadingDiv.style.display = 'block';
+
+        try {
+            const formData = new FormData();
+            formData.append('username', document.getElementById('profile-username').value.trim());
+            formData.append('bio', document.getElementById('profile-bio').value.trim());
+
+            const fileInput = document.getElementById('profile-picture');
+            if (fileInput.files[0]) {
+                formData.append('profilePicture', fileInput.files[0]);
+            }
+
+            const response = await fetch('/api/profile', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                // Update localStorage with new user data
+                const updatedUser = { ...user, ...result.user };
+                localStorage.setItem('user', JSON.stringify(updatedUser));
+
+                // Show success message
+                alert('Profile updated successfully!');
+
+                // Reload profile data to reflect changes
+                loadUserProfile();
+
+                // Clear file input
+                fileInput.value = '';
+
+            } else {
+                alert(result.message || 'Failed to update profile');
+            }
+
+        } catch (error) {
+            console.error('Profile update error:', error);
+            alert('An error occurred while updating your profile. Please try again.');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Update Profile';
+            loadingDiv.style.display = 'none';
+        }
+    });
+
     loadUserPosts();
+    loadUserProfile();
+});
+
+// Handle logout
+document.getElementById('logout-btn').addEventListener('click', async function() {
+    try {
+        const user = JSON.parse(localStorage.getItem('user'));
+        const token = user?.token;
+
+        // Call logout API to invalidate token on server
+        await fetch('/api/logout', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+    } catch (error) {
+        console.error('Logout API error:', error);
+    }
+
+    // Clear local storage and redirect
+    localStorage.removeItem('user');
+    localStorage.removeItem('sessionStart');
+    window.location.href = 'login.html';
 });
 
 document.getElementById('delete-account-btn').onclick = async function() {

@@ -24,7 +24,6 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
             });
-            document.getElementById('loading-indicator').style.display = 'none';
             const data = await res.json();
             if (res.ok) {
                 
