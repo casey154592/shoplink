@@ -8,7 +8,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Example questions
     const questions = {
         CEO: [
-            { type: 'text', label: "What is your business name?" },
+            { type: 'text', label: "What is your business name?", name: "businessName" },
+            { type: 'text', label: "What is your brand name?", name: "brandName" },
             {
                 type: 'select',
                 label: "What business do you render to customers?",
@@ -24,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     "Other"
                 ]
             },
-            { type: 'text', label: "Describe your target customers?" }
+            { type: 'text', label: "Describe your target customers?", name: "targetCustomers" }
         ],
         CUSTOMER: [
             {

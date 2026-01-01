@@ -1,33 +1,119 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Show popup message
+    function showPopup(msg, isSuccess = true) {
+        const popup = document.getElementById('popup-message');
+        const popupText = document.getElementById('popup-text');
+        popupText.textContent = msg;
+        popup.style.borderColor = isSuccess ? '#7b2ff2' : '#db4437';
+        popup.style.color = isSuccess ? '#7b2ff2' : '#db4437';
+        popup.style.display = 'flex';
+        setTimeout(() => { popup.style.display = 'none'; }, 3500);
+    }
+    document.getElementById('popup-close').onclick = function() {
+        document.getElementById('popup-message').style.display = 'none';
+    };
+
     const user = JSON.parse(localStorage.getItem('user'));
     const token = user?.token;
     
+    console.log('User from localStorage:', user);
+    console.log('Token:', token);
+    
     // Check if user is logged in when page loads
     if (!user || !token) {
-        alert('You must be logged in to access your profile.');
-        window.location.href = 'login.html';
+        showPopup('You must be logged in to access your profile.', false);
+        setTimeout(() => { window.location.href = 'login.html'; }, 2000);
         return;
     }
     
     const postsContainer = document.getElementById('posts-container');
     const postsLoading = document.getElementById('posts-loading');
 
-    // Load user profile data into form
-    function loadUserProfile() {
-        if (!user) return;
+    // Load transaction statistics
+    async function loadTransactionStats() {
+        try {
+            const response = await fetch(`/api/transactions/stats/${user.id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const stats = await response.json();
+                displayTransactionStats(stats);
+            }
+        } catch (error) {
+            console.error('Error loading transaction stats:', error);
+        }
+    }
 
-        document.getElementById('profile-username').value = user.username || '';
-        document.getElementById('profile-email').value = user.email || '';
-        document.getElementById('profile-role').value = user.role || '';
-        document.getElementById('profile-bio').value = user.bio || '';
+    // Display transaction statistics
+    function displayTransactionStats(stats) {
+        const profileContainer = document.querySelector('.profile-container');
+        
+        // Remove existing stats section if it exists
+        const existingStats = document.getElementById('transaction-stats');
+        if (existingStats) {
+            existingStats.remove();
+        }
 
-        // Set profile picture preview
-        const previewImg = document.getElementById('profile-picture-preview-img');
-        if (user.profilePictureUrl) {
-            previewImg.src = user.profilePictureUrl;
-        } else {
-            // Use initials if no profile picture
-            previewImg.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username || 'User')}&background=7b2ff2&color=fff`;
+        // Only show stats for customers
+        if (user.role === 'customer') {
+            const statsSection = document.createElement('div');
+            statsSection.id = 'transaction-stats';
+            statsSection.innerHTML = `
+                <h2 style="color: #7b2ff2; margin-top: 2rem; margin-bottom: 1rem;">Transaction Summary</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                    <div style="text-align: center; padding: 1rem; background: #f9f6ff; border-radius: 8px;">
+                        <div style="font-size: 1.5rem; font-weight: bold; color: #7b2ff2;">${stats.total}</div>
+                        <div style="color: #666; font-size: 0.9rem;">Total</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem; background: #fff3cd; border-radius: 8px;">
+                        <div style="font-size: 1.5rem; font-weight: bold; color: #856404;">${stats.pending}</div>
+                        <div style="color: #666; font-size: 0.9rem;">Pending</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem; background: #cce7ff; border-radius: 8px;">
+                        <div style="font-size: 1.5rem; font-weight: bold; color: #0066cc;">${stats.inProgress}</div>
+                        <div style="color: #666; font-size: 0.9rem;">Ongoing</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem; background: #d4edda; border-radius: 8px;">
+                        <div style="font-size: 1.5rem; font-weight: bold; color: #155724;">${stats.completed}</div>
+                        <div style="color: #666; font-size: 0.9rem;">Completed</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem; background: #f8d7da; border-radius: 8px;">
+                        <div style="font-size: 1.5rem; font-weight: bold; color: #721c24;">${stats.failed + stats.cancelled}</div>
+                        <div style="color: #666; font-size: 0.9rem;">Failed</div>
+                    </div>
+                </div>
+                <div style="text-align: center; padding: 1rem; background: #e7f3ff; border-radius: 8px; margin-bottom: 2rem;">
+                    <div style="font-size: 1.8rem; font-weight: bold; color: #7b2ff2;">₦${stats.totalAmount.toLocaleString()}</div>
+                    <div style="color: #666;">Total Amount Spent</div>
+                </div>
+            `;
+            profileContainer.appendChild(statsSection);
+        } else if (user.role === 'CEO') {
+            // For CEOs, show their customer count
+            const ceoStatsSection = document.createElement('div');
+            ceoStatsSection.id = 'ceo-stats';
+            ceoStatsSection.innerHTML = `
+                <h2 style="color: #7b2ff2; margin-top: 2rem; margin-bottom: 1rem;">Business Summary</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                    <div style="text-align: center; padding: 1rem; background: #f9f6ff; border-radius: 8px;">
+                        <div style="font-size: 1.5rem; font-weight: bold; color: #7b2ff2;">${user.followers ? user.followers.length : 0}</div>
+                        <div style="color: #666; font-size: 0.9rem;">Followers</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem; background: #d4edda; border-radius: 8px;">
+                        <div style="font-size: 1.5rem; font-weight: bold; color: #155724;">${stats.completed}</div>
+                        <div style="color: #666; font-size: 0.9rem;">Completed Deals</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem; background: #cce7ff; border-radius: 8px;">
+                        <div style="font-size: 1.5rem; font-weight: bold; color: #0066cc;">${stats.inProgress}</div>
+                        <div style="color: #666; font-size: 0.9rem;">Active Deals</div>
+                    </div>
+                </div>
+                <div style="text-align: center; padding: 1rem; background: #e7f3ff; border-radius: 8px; margin-bottom: 2rem;">
+                    <div style="font-size: 1.8rem; font-weight: bold; color: #7b2ff2;">₦${stats.totalAmount.toLocaleString()}</div>
+                    <div style="color: #666;">Total Earnings</div>
+                </div>
+            `;
+            profileContainer.appendChild(ceoStatsSection);
         }
     }
 
@@ -81,13 +167,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Delete
         if (e.target.classList.contains('delete-post-btn')) {
-            if (confirm('Delete this post?')) {
-                await fetch(`/api/posts/${postId}`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: user.email })
-                });
-                loadUserPosts();
+            if (confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+                try {
+                    console.log('Profile delete: Sending DELETE request to:', `/api/posts/${postId}`);
+                    const response = await fetch(`/api/posts/${postId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    console.log('Profile delete response status:', response.status);
+                    const result = await response.json();
+                    console.log('Profile delete response:', result);
+
+                    if (response.ok) {
+                        showPopup('Post deleted successfully!', true);
+                        loadUserPosts(); // Refresh the posts list
+                    } else {
+                        showPopup(result.message || 'Failed to delete post.', false);
+                    }
+                } catch (error) {
+                    console.error('Delete post error:', error);
+                    showPopup('An error occurred while deleting the post.', false);
+                }
             }
         }
 
@@ -133,18 +236,40 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('profile-form').addEventListener('submit', async function(e) {
         e.preventDefault();
 
+        if (!user || !user.id) {
+            showPopup('User data not found. Please log in first.', false);
+            setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+            return;
+        }
+
         const submitBtn = document.getElementById('profile-submit-btn');
         const loadingDiv = document.getElementById('profile-loading');
+        const originalText = submitBtn.textContent;
 
+        // Disable button and show loading
         submitBtn.disabled = true;
         submitBtn.textContent = 'Updating...';
         loadingDiv.style.display = 'block';
 
         try {
             const formData = new FormData();
-            formData.append('username', document.getElementById('profile-username').value.trim());
-            formData.append('bio', document.getElementById('profile-bio').value.trim());
+            const username = document.getElementById('profile-username').value.trim();
+            const bio = document.getElementById('profile-bio').value.trim();
 
+            // Validate username
+            if (!username) {
+                showPopup('Username is required.', false);
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+                loadingDiv.style.display = 'none';
+                return;
+            }
+
+            formData.append('username', username);
+            formData.append('bio', bio);
+            formData.append('userId', user?.id);
+
+            // Add profile picture if selected
             const fileInput = document.getElementById('profile-picture');
             if (fileInput.files[0]) {
                 formData.append('profilePicture', fileInput.files[0]);
@@ -164,32 +289,37 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Update localStorage with new user data
                 const updatedUser = { ...user, ...result.user };
                 localStorage.setItem('user', JSON.stringify(updatedUser));
+                Object.assign(user, result.user);
 
-                // Show success message
-                alert('Profile updated successfully!');
-
-                // Reload profile data to reflect changes
-                loadUserProfile();
-
-                // Clear file input
-                fileInput.value = '';
+                showPopup('Profile updated successfully!', true);
+                setTimeout(() => { window.location.href = 'feed.html'; }, 2000);
 
             } else {
-                alert(result.message || 'Failed to update profile');
+                if (response.status === 401) {
+                    showPopup('Your session has expired. Please log in again.', false);
+                    setTimeout(() => {
+                        localStorage.removeItem('user');
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } else {
+                    showPopup(result.message || 'Failed to update profile. Please try again.', false);
+                }
             }
 
         } catch (error) {
             console.error('Profile update error:', error);
-            alert('An error occurred while updating your profile. Please try again.');
+            showPopup('An error occurred while updating your profile. Please check your connection and try again.', false);
         } finally {
+            // Re-enable button and hide loading
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Update Profile';
+            submitBtn.textContent = originalText;
             loadingDiv.style.display = 'none';
         }
     });
 
     loadUserPosts();
     loadUserProfile();
+    loadTransactionStats();
 });
 
 // Handle logout
@@ -218,13 +348,27 @@ document.getElementById('logout-btn').addEventListener('click', async function()
 document.getElementById('delete-account-btn').onclick = async function() {
     if (!confirm('Are you sure you want to delete your account? This action cannot be undone.')) return;
     const user = JSON.parse(localStorage.getItem('user'));
-    if (!user || !user.id) return alert('User not found.');
-    const res = await fetch(`/api/users/${user.id}`, { method: 'DELETE' });
-    if (res.ok) {
-        localStorage.removeItem('user');
-        alert('Account deleted.');
-        window.location.href = 'signup.html';
-    } else {
-        alert('Failed to delete account.');
+    const token = user?.token;
+    if (!token) {
+        showPopup('Authentication required.', false);
+        return;
+    }
+    
+    try {
+        const res = await fetch('/api/profile', { 
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            localStorage.removeItem('user');
+            showPopup('Account deleted.', true);
+            setTimeout(() => { window.location.href = 'signup.html'; }, 2000);
+        } else {
+            const error = await res.json();
+            showPopup(error.message || 'Failed to delete account.', false);
+        }
+    } catch (error) {
+        console.error('Delete account error:', error);
+        showPopup('An error occurred while deleting your account.', false);
     }
 };

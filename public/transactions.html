@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Transactions - Shoplink</title>
+    <link rel="stylesheet" href="./css.style/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: #f9f6ff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .transactions-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .transactions-header {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px rgba(123,47,242,0.10);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(123,47,242,0.07);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #7b2ff2;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .transactions-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .transaction-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(123,47,242,0.07);
+        }
+
+        .transaction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .transaction-parties {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .party-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .party-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .transaction-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-in_progress { background: #cce7ff; color: #0066cc; }
+        .status-completed { background: #d4edda; color: #155724; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+        .status-failed { background: #f8d7da; color: #721c24; }
+
+        .transaction-content {
+            margin-bottom: 1rem;
+        }
+
+        .transaction-amount {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #7b2ff2;
+        }
+
+        .transaction-description {
+            color: #666;
+            margin: 0.5rem 0;
+        }
+
+        .transaction-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background: #7b2ff2; color: white; }
+        .btn-primary:hover { background: #f357a8; }
+
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #218838; }
+
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-danger:hover { background: #c82333; }
+
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #545b62; }
+
+        .no-transactions {
+            text-align: center;
+            color: #888;
+            padding: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .transaction-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .transaction-actions {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="transactions-container">
+        <div class="transactions-header">
+            <h1>My Transactions</h1>
+            <p>Manage your business transactions</p>
+        </div>
+
+        <div id="stats-container" class="stats-grid">
+            <!-- Stats will be populated by JavaScript -->
+        </div>
+
+        <div id="transactions-list" class="transactions-list">
+            <!-- Transactions will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div id="transaction-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Create Transaction</h2>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="transaction-form">
+                    <div class="form-group">
+                        <label for="transaction-post">Select Post:</label>
+                        <select id="transaction-post" required>
+                            <option value="">Choose a post...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="transaction-amount">Amount (₦):</label>
+                        <input type="number" id="transaction-amount" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="transaction-description">Description:</label>
+                        <textarea id="transaction-description" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Transaction</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="./transactions.js"></script>
+</body>
+</html>

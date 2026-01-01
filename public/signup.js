@@ -64,6 +64,8 @@
             });
             document.getElementById('loading-indicator').style.display = 'none';
             if (res.ok) {
+                const data = await res.json();
+                localStorage.setItem('user', JSON.stringify(data));
                 showPopup('Signed up with Google! Redirecting...', true);
                 setTimeout(() => { window.location.href = 'questions.html'; }, 1800);
             } else {

@@ -26,11 +26,16 @@
             });
             const data = await res.json();
             if (res.ok) {
-                
+                if (!data.token) {
+                    console.error('No token in login response:', data);
+                    showPopup('Login failed: authentication error. Please try again.', false);
+                    return;
+                }
                 localStorage.setItem('user', JSON.stringify(data));
                 localStorage.setItem('sessionStart', new Date().getTime().toString());
+                console.log('Login data saved:', data);
                 showPopup('Login successful! Redirecting...', true);
-                setTimeout(() => { window.location.href = 'feed.html'; }, 1500);
+                setTimeout(() => { window.location.href = 'feed.html'; }, 0);
             } 
             else {
                     showPopup(data.message||'Login failed. Please check your credentials.', false);
@@ -54,8 +59,17 @@
             });
             document.getElementById('loading-indicator').style.display = 'none';
             if (res.ok) {
+                const data = await res.json();
+                if (!data.token) {
+                    console.error('No token in Google login response:', data);
+                    showPopup('Google login failed: authentication error. Please try again.', false);
+                    return;
+                }
+                localStorage.setItem('user', JSON.stringify(data));
+                localStorage.setItem('sessionStart', new Date().getTime().toString());
+                console.log('Google login data saved:', data);
                 showPopup('Login with Google successful! Redirecting...', true);
-                setTimeout(() => { window.location.href = 'feed.html'; }, 1500);
+                setTimeout(() => { window.location.href = 'feed.html'; }, 0);
             } else {
                 const data = await res.json();
                 if (data && data.message && data.message.toLowerCase().includes('no account')) {

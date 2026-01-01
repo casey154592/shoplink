@@ -183,6 +183,32 @@ button[type="submit"]:hover, #logout-btn:hover {
     z-index: 2;
     pointer-events: none;
 }
+.popup-message {
+    position: fixed;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    color: #7b2ff2;
+    border: 2px solid #7b2ff2;
+    border-radius: 10px;
+    padding: 1.2rem 2rem;
+    box-shadow: 0 4px 24px rgba(123,47,242,0.13);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.1rem;
+    animation: fadeIn 0.4s;
+}
+#popup-close {
+    background: none;
+    border: none;
+    color: #f357a8;
+    font-size: 1.5rem;
+    cursor: pointer;
+    margin-left: 1rem;
+}
 </style>
 </head>
 <body>
@@ -243,6 +269,12 @@ button[type="submit"]:hover, #logout-btn:hover {
     <div id="posts-loading" class="posts-loading" style="display:none;">
       <div class="spinner"></div>
       <span>Loading your posts...</span>
+    </div>
+
+    <!-- Popup message -->
+    <div id="popup-message" class="popup-message" style="display:none;">
+        <span id="popup-text"></span>
+        <button id="popup-close">&times;</button>
     </div>
 
     <script src="./profile.js"></script>

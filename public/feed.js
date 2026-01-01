@@ -1,4 +1,25 @@
 document.addEventListener('DOMContentLoaded', async function() {
+    // Show popup message
+    function showPopup(msg, isSuccess = true) {
+        const popup = document.getElementById('popup-message');
+        const popupText = document.getElementById('popup-text');
+        if (popup && popupText) {
+            popupText.textContent = msg;
+            popup.style.borderColor = isSuccess ? '#7b2ff2' : '#db4437';
+            popup.style.color = isSuccess ? '#7b2ff2' : '#db4437';
+            popup.style.display = 'flex';
+            setTimeout(() => { popup.style.display = 'none'; }, 3500);
+        }
+    }
+
+    // Close popup functionality
+    const popupClose = document.getElementById('popup-close');
+    if (popupClose) {
+        popupClose.onclick = function() {
+            document.getElementById('popup-message').style.display = 'none';
+        };
+    }
+
     const user = JSON.parse(localStorage.getItem('user'));
     const token = user?.token;
     const userId = user?.id;
@@ -36,15 +57,24 @@ document.addEventListener('DOMContentLoaded', async function() {
             const negotiableBadge = post.negotiable
                 ? `<span class="negotiable-badge">Negotiable</span>`
                 : `<span class="negotiable-badge" style="background:#888;">Not Negotiable</span>`;
+            const isOwnPost = userRole === 'CEO' && post.author && post.author.id === userId;
+            const deleteBtnHtml = isOwnPost
+                ? `<button class="delete-post-btn" data-post-id="${post._id}" style="background:#dc3545;color:white;border:none;padding:5px 10px;border-radius:4px;margin-left:10px;"><i class="fa fa-trash"></i> Delete</button>`
+                : '';
             feedPosts.innerHTML += `
                 <div class="product-card">
                     <div class="product-card-header">
-                        <img src="${post.author?.profilePictureUrl || './default-avatar.png'}" alt="Ceo Profile" class="product-ceo-avatar">
-                        <div class="product-ceo-info">
-                            <span class="product-ceo-name">${post.author?.username || 'Unknown'}</span>
-                            <span class="product-ceo-role">CEO</span>
+                        <div class="ceo-profile-section">
+                            <img src="${post.author?.profilePictureUrl || './default-avatar.png'}" alt="Ceo Profile" class="product-ceo-avatar circular-avatar">
+                            <div class="ceo-info">
+                                <span class="product-ceo-name">${post.author?.username || 'Unknown'}</span>
+                                ${post.author?.brandName ? `<span class="product-ceo-brand">${post.author.brandName}</span>` : ''}
+                                <span class="product-ceo-role">CEO</span>
+                            </div>
                         </div>
-                        ${followBtnHtml}
+                        <div class="card-actions">
+                            ${followBtnHtml}
+                        </div>
                     </div>
                     <img src="${post.imageUrl}" alt="Product Image" class="product-img">
                     <div class="product-info">
@@ -55,7 +85,11 @@ document.addEventListener('DOMContentLoaded', async function() {
                         <div class="product-desc">
                             <p>${post.description}</p>
                         </div>
-                        ${userRole === 'customer' ? `<button class="add-to-cart-btn" data-post-id="${post._id}">Add to Cart</button>` : ''}
+                        <div class="post-actions">
+                            ${userRole === 'CEO' && post.author?.id === userId ? `<button class="edit-post-btn" data-post-id="${post._id}">Edit Post</button>` : ''}
+                            ${userRole === 'CEO' && post.author?.id === userId ? `<button class="delete-post-btn" data-post-id="${post._id}" style="background:#dc3545;color:white;border:none;padding:5px 10px;border-radius:4px;margin-left:10px;"><i class="fa fa-trash"></i> Delete</button>` : ''}
+                            ${userRole === 'customer' ? `<button class="add-to-cart-btn" data-post-id="${post._id}">Add to Cart</button>` : ''}
+                        </div>
                     </div>
                 </div>
             `;
@@ -65,13 +99,23 @@ document.addEventListener('DOMContentLoaded', async function() {
         document.querySelectorAll('.follow-ceo-btn').forEach(btn => {
             btn.addEventListener('click', async function() {
                 const ceoId = this.dataset.ceoId;
-                const res = await fetch(`/api/posts/follow/${ceoId}`, {
-                    method: 'POST',
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                if (res.ok) {
-                    this.textContent = 'Following';
-                    this.disabled = true;
+                try {
+                    const res = await fetch(`/api/posts/follow/${ceoId}`, {
+                        method: 'POST',
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        this.innerHTML = '<i class="fa fa-check"></i> Following';
+                        this.disabled = true;
+                        this.style.background = '#7b2ff2';
+                        showPopup('Successfully followed CEO!', true);
+                    } else {
+                        const error = await res.json();
+                        showPopup(error.message || 'Failed to follow CEO.', false);
+                    }
+                } catch (error) {
+                    console.error('Follow error:', error);
+                    showPopup('An error occurred while following the CEO.', false);
                 }
             });
         });
@@ -84,9 +128,118 @@ document.addEventListener('DOMContentLoaded', async function() {
                 if (!cart.includes(postId)) {
                     cart.push(postId);
                     localStorage.setItem('cart', JSON.stringify(cart));
-                    alert('Added to cart!');
+                    showPopup('Added to cart!', true);
+                    this.textContent = 'In Cart';
+                    this.disabled = true;
+                    this.style.background = '#7b2ff2';
                 } else {
-                    alert('Already in cart!');
+                    showPopup('Already in cart!', false);
+                }
+            });
+        });
+
+        // Delete post logic (for CEOs on their own posts)
+        document.querySelectorAll('.delete-post-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const postId = this.dataset.postId;
+                console.log('Delete button clicked for post:', postId);
+                if (confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+                    try {
+                        console.log('Sending DELETE request to:', `/api/posts/${postId}`);
+                        const response = await fetch(`/api/posts/${postId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        console.log('DELETE response status:', response.status);
+                        const result = await response.json();
+                        console.log('DELETE response:', result);
+
+                        if (response.ok) {
+                            showPopup('Post deleted successfully!', true);
+                            // Refresh the feed to remove the deleted post
+                            await loadFeed();
+                        } else {
+                            showPopup(result.message || 'Failed to delete post.', false);
+                        }
+                    } catch (error) {
+                        console.error('Delete post error:', error);
+                        showPopup('An error occurred while deleting the post.', false);
+                    }
+                }
+            });
+        });
+
+        // Edit post logic (for CEOs on their own posts)
+        document.querySelectorAll('.edit-post-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const postId = this.dataset.postId;
+                const card = this.closest('.product-card');
+                const descElement = card.querySelector('.product-desc p');
+                const priceElement = card.querySelector('.product-price span');
+                const negotiableBadge = card.querySelector('.negotiable-badge');
+
+                if (this.textContent === 'Edit Post') {
+                    // Switch to edit mode
+                    const currentDesc = descElement.textContent;
+                    const currentPrice = priceElement.textContent;
+                    const isNegotiable = negotiableBadge && !negotiableBadge.style.background.includes('888');
+
+                    descElement.innerHTML = `<textarea style="width:100%;min-height:60px;padding:8px;border:1px solid #7b2ff2;border-radius:4px;">${currentDesc}</textarea>`;
+                    priceElement.innerHTML = `<input type="number" step="0.01" min="0" value="${currentPrice}" style="width:80px;padding:4px;border:1px solid #7b2ff2;border-radius:4px;">`;
+
+                    // Add negotiable checkbox
+                    if (negotiableBadge) {
+                        negotiableBadge.innerHTML = `<label style="font-size:0.8rem;"><input type="checkbox" ${isNegotiable ? 'checked' : ''} style="margin-right:4px;">Negotiable</label>`;
+                    }
+
+                    this.textContent = 'Save Changes';
+                    this.style.background = '#28a745';
+                } else {
+                    // Save changes
+                    const newDesc = descElement.querySelector('textarea').value.trim();
+                    const newPrice = parseFloat(priceElement.querySelector('input').value);
+                    const isNegotiable = negotiableBadge && negotiableBadge.querySelector('input').checked;
+
+                    if (!newDesc || !newPrice || newPrice <= 0) {
+                        showPopup('Please enter valid description and price.', false);
+                        return;
+                    }
+
+                    // Send update request
+                    fetch(`/api/posts/${postId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            description: newDesc,
+                            price: newPrice,
+                            negotiable: isNegotiable
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(result => {
+                        if (result.message === 'Post updated successfully') {
+                            showPopup('Post updated successfully!', true);
+                            // Refresh the feed to show updated post
+                            loadFeed();
+                        } else {
+                            showPopup(result.message || 'Failed to update post.', false);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Edit post error:', error);
+                        showPopup('API endpoint not found or network error. Please try again.', false);
+                    });
                 }
             });
         });
@@ -95,16 +248,19 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Notifications
     async function loadNotifications() {
         if (!token) return;
-        const res = await fetch('/api/posts/notifications', {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        const notifications = await res.json();
-        if (notifBadge) notifBadge.textContent = notifications.filter(n => !n.read).length;
-        // Optionally, show notifications in a modal or dropdown
-        if (notifications.length > 0) {
-            alert('Notifications:\n' + notifications.map(n => n.content).join('\n'));
-        } else {
-            alert('No new notifications.');
+        try {
+            const res = await fetch('/api/notifications', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (notifBadge) {
+                    notifBadge.textContent = data.unreadCount;
+                    notifBadge.style.display = data.unreadCount > 0 ? 'inline-block' : 'none';
+                }
+            }
+        } catch (error) {
+            console.error('Error loading notifications:', error);
         }
     }
     if (notifIcon) {
@@ -130,7 +286,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         addPostBtn.addEventListener('click', function() {
             // Check if user is CEO (only CEOs can create posts)
             if (userRole !== 'CEO') {
-                alert('Only CEOs can create product posts.');
+                showPopup('Only CEOs can create product posts.', false);
                 return;
             }
             postModal.style.display = 'block';
@@ -163,20 +319,34 @@ document.addEventListener('DOMContentLoaded', async function() {
         createPostForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
+            const description = document.getElementById('post-description').value.trim();
+            const price = document.getElementById('post-price').value;
+            const imageInput = document.getElementById('post-image');
+
+            // Client-side validation
+            if (!description) {
+                showPopup('Please enter a product description.', false);
+                return;
+            }
+            if (!price || parseFloat(price) <= 0) {
+                showPopup('Please enter a valid price greater than 0.', false);
+                return;
+            }
+            if (!imageInput.files[0]) {
+                showPopup('Please select a product image.', false);
+                return;
+            }
+
             postSubmitBtn.disabled = true;
             postSubmitBtn.textContent = 'Creating...';
             postLoading.style.display = 'block';
 
             try {
                 const formData = new FormData();
-                formData.append('description', document.getElementById('post-description').value);
-                formData.append('price', document.getElementById('post-price').value);
+                formData.append('description', description);
+                formData.append('price', price);
                 formData.append('negotiable', document.getElementById('post-negotiable').value);
-
-                const imageInput = document.getElementById('post-image');
-                if (imageInput.files[0]) {
-                    formData.append('productImage', imageInput.files[0]);
-                }
+                formData.append('productImage', imageInput.files[0]);
 
                 const response = await fetch('/api/posts', {
                     method: 'POST',
@@ -189,18 +359,29 @@ document.addEventListener('DOMContentLoaded', async function() {
                 const result = await response.json();
 
                 if (response.ok) {
-                    alert('Post created successfully!');
+                    showPopup('Post created successfully!', true);
                     postModal.style.display = 'none';
                     document.body.style.overflow = 'auto';
                     createPostForm.reset();
-                    loadFeed(); // Refresh the feed to show the new post
+                    // Refresh the feed to show the new post immediately
+                    await loadFeed();
                 } else {
-                    alert(result.message || 'Failed to create post');
+                    if (response.status === 401) {
+                        showPopup('Your session has expired. Please log in again.', false);
+                        setTimeout(() => {
+                            localStorage.removeItem('user');
+                            window.location.href = 'login.html';
+                        }, 2000);
+                    } else if (response.status === 403) {
+                        showPopup('Only CEOs can create posts.', false);
+                    } else {
+                        showPopup(result.message || 'Failed to create post. Please try again.', false);
+                    }
                 }
 
             } catch (error) {
                 console.error('Post creation error:', error);
-                alert('An error occurred while creating your post. Please try again.');
+                showPopup('An error occurred while creating your post. Please check your connection and try again.', false);
             } finally {
                 postSubmitBtn.disabled = false;
                 postSubmitBtn.textContent = 'Create Post';
@@ -246,12 +427,36 @@ document.addEventListener('DOMContentLoaded', async function() {
     const openMenu = document.getElementById('open-menu');
     const closeMenu = document.getElementById('close-menu');
 
-    if (user) {
+    // Load and display user profile info in sidebar
+    async function loadUserSidebarInfo() {
+        if (!user || !user.id) return;
+
+        try {
+            const response = await fetch(`/api/profile/${user.id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const profileData = await response.json();
+                // Update localStorage with latest data
+                const updatedUser = { ...user, ...profileData };
+                localStorage.setItem('user', JSON.stringify(updatedUser));
+                // Update the local user variable
+                Object.assign(user, profileData);
+            }
+        } catch (error) {
+            console.error('Error fetching user profile for sidebar:', error);
+        }
+
+        // Populate sidebar with user data
         document.getElementById('side-profile-username').textContent = user.username || '';
         document.getElementById('side-profile-email').textContent = user.email || '';
         document.getElementById('side-profile-role').textContent = user.role ? `Role: ${user.role}` : '';
         document.getElementById('side-profile-bio').textContent = user.bio || '';
         document.getElementById('side-profile-pic').src = user.profilePictureUrl || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.username || 'User');
+    }
+
+    if (user) {
+        loadUserSidebarInfo();
     }
 
     if (openMenu && sideMenu) {
@@ -279,24 +484,40 @@ document.addEventListener('DOMContentLoaded', async function() {
     const chatBtn = document.getElementById('chat-btn');
     if (chatBtn) {
         chatBtn.addEventListener('click', function() {
-            alert('Chat feature coming soon! You will be able to chat with other registered users.');
+            showPopup('Chat feature coming soon! You will be able to chat with other registered users.', false);
         });
     }
 
-    // Update cart badge with number of items
+    // Profile button functionality
+    const profileBtn = document.getElementById('profile-btn');
+    if (profileBtn) {
+        profileBtn.addEventListener('click', function() {
+            window.location.href = 'my-posts.html';
+        });
+    }
+
+    // Update cart badge with number of items (only for customers)
     const cartBtn = document.getElementById('cart-btn');
     const cartBadge = document.getElementById('cart-badge');
-    const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
-    if (cartItems.length > 0) {
-        cartBadge.textContent = cartItems.length;
-        cartBadge.style.display = 'inline-block';
+    if (userRole === 'customer') {
+        const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+        if (cartItems.length > 0) {
+            cartBadge.textContent = cartItems.length;
+            cartBadge.style.display = 'inline-block';
+        } else {
+            cartBadge.style.display = 'none';
+        }
+        if (cartBtn) {
+            cartBtn.style.display = 'inline-flex';
+            cartBtn.addEventListener('click', function() {
+                window.location.href = 'cart.html';
+            });
+        }
     } else {
-        cartBadge.style.display = 'none';
-    }
-    if (cartBtn) {
-        cartBtn.addEventListener('click', function() {
-            window.location.href = 'cart.html';
-        });
+        // Hide cart button for CEOs
+        if (cartBtn) {
+            cartBtn.style.display = 'none';
+        }
     }
 
     // Search bar functionality
@@ -354,27 +575,4 @@ document.addEventListener('DOMContentLoaded', async function() {
             sideMenu.classList.remove('active');
         }
     });
-});
-
-// Logout user when leaving the feed page
-window.addEventListener('beforeunload', function() {
-    // This will log out the user when they navigate away from the feed page
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (user && user.token) {
-        // Send logout request to server
-        fetch('/api/logout', {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${user.token}`
-            },
-            // Use keepalive to ensure request completes even on page unload
-            keepalive: true
-        }).catch(err => console.error('Logout error on page unload:', err));
-        
-        // Clear localStorage
-        localStorage.removeItem('user');
-        localStorage.removeItem('cart');
-        localStorage.removeItem('notifications');
-    }
 });

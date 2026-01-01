@@ -300,6 +300,87 @@
             background: #f357a8;
             transform: translateY(-2px);
         }
+        /* CEO Profile Section Styles */
+        .ceo-profile-section {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .circular-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #7b2ff2;
+        }
+        .ceo-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .product-ceo-name {
+            font-weight: 600;
+            color: #7b2ff2;
+            font-size: 1rem;
+        }
+        .product-ceo-brand {
+            font-weight: 500;
+            color: #f357a8;
+            font-size: 0.9rem;
+            margin-left: 8px;
+        }
+        .product-ceo-role {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .post-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-top: 1rem;
+            justify-content: flex-end;
+        }
+        .edit-post-btn {
+            background: #ffc107;
+            color: #000;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .edit-post-btn:hover {
+            background: #e0a800;
+        }
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .follow-ceo-btn, .delete-post-btn {
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .follow-ceo-btn {
+            background: #7b2ff2;
+            color: white;
+        }
+        .follow-ceo-btn:hover {
+            background: #f357a8;
+        }
+        .delete-post-btn:hover {
+            background: #c82333 !important;
+        }
         @media (max-width: 700px) {
             .side-menu {
                 width: 90vw;
@@ -415,6 +496,32 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
+        .popup-message {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            color: #7b2ff2;
+            border: 2px solid #7b2ff2;
+            border-radius: 10px;
+            padding: 1.2rem 2rem;
+            box-shadow: 0 4px 24px rgba(123,47,242,0.13);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.1rem;
+            animation: fadeIn 0.4s;
+        }
+        #popup-close {
+            background: none;
+            border: none;
+            color: #f357a8;
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -436,6 +543,8 @@
         </div>
         <a href="index.html"><i class="fa fa-home"></i> Home</a>
         <a href="profile.html"><i class="fa fa-user-edit"></i> Edit Profile</a>
+        <a href="my-posts.html"><i class="fa fa-list"></i> My Posts</a>
+        <a href="transactions.html"><i class="fa fa-exchange-alt"></i> Transactions</a>
         <a href="cart.html"><i class="fa fa-shopping-cart"></i> Cart</a>
         <a href="mailto:shoplink17@gmail.com"><i class="fa fa-envelope"></i> Email us</a>
         <button id="side-logout-btn" class="side-logout-btn"><i class="fa fa-sign-out-alt"></i> Logout</button>
@@ -445,6 +554,9 @@
         <div class="feed-header">
             <h1>Shoplink</h1>
             <div class="header-icons">
+                <button id="profile-btn" class="profile-btn" title="My Profile">
+                    <i class="fa fa-user"></i>
+                </button>
                 <button id="add-post-btn" class="add-post-btn" title="Create Post">
                     <i class="fa fa-plus"></i>
                 </button>
@@ -499,6 +611,12 @@
                 <div id="post-loading" class="post-loading" style="display:none;">Creating post...</div>
             </form>
         </div>
+    </div>
+
+    <!-- Popup message -->
+    <div id="popup-message" class="popup-message" style="display:none;">
+        <span id="popup-text"></span>
+        <button id="popup-close">&times;</button>
     </div>
 
     <script src="./feed.js"></script>

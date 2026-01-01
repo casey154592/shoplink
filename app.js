@@ -47,6 +47,12 @@ console.log('Posts routes stack:', postsRoute.stack ? postsRoute.stack.length : 
 app.use('/api/posts', postsRoute);
 console.log('Posts routes mounted at /api/posts');
 
+const transactionsRoute = require('./api/transactions');
+app.use('/api/transactions', transactionsRoute);
+
+const notificationsRoute = require('./api/notifications').router;
+app.use('/api/notifications', notificationsRoute);
+
 const usersRouter = require('./api/users');
 app.use('/api/users', usersRouter);
 
