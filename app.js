@@ -56,6 +56,10 @@ app.use('/api/notifications', notificationsRoute);
 const usersRouter = require('./api/users');
 app.use('/api/users', usersRouter);
 
+// Password reset API
+const passwordReset = require('./api/passwordReset');
+app.use('/api', passwordReset);
+
 // Add your follow and notifications routes here
 app.post('/follow/:ceoId', auth, async (req, res) => { /* your implementation here */ });
 app.get('/notifications', auth, async (req, res) => { /* your implementation here */ });
@@ -74,7 +78,12 @@ app.use((err, req, res, next) => {
 });
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/shoplink')
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/shoplink', {
+  serverSelectionTimeoutMS: 60000,
+  socketTimeoutMS: 60000,
+  connectTimeoutMS: 60000,
+  retryWrites: true
+})
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 

@@ -19,14 +19,33 @@ router.post('/login', async (req, res) => {
         return res.status(400).json({ message: 'Email and password are required.' });
     }
     try {
-        const user = await UserModel.findOne({ email: email.toLowerCase() });
+        const emailLower = email.toLowerCase();
+        console.log('🔍 Login attempt for:', emailLower);
+        
+        const user = await UserModel.findOne({ email: emailLower });
         if (!user) {
+            console.log('❌ User not found in DB:', emailLower);
             return res.status(401).json({ message: 'Invalid email or password.' });
         }
+        
+        console.log('✓ User found:', user.email);
+        console.log('📦 User password field exists:', !!user.password);
+        console.log('📦 User password length:', user.password ? user.password.length : 'null');
+        
+        if (!user.password) {
+            console.log('❌ User has no password (Google signup only)');
+            return res.status(401).json({ message: 'This account uses Google Sign-In only.' });
+        }
+        
         const isMatch = await bcrypt.compare(password, user.password);
+        console.log('🔐 Password match result:', isMatch);
+        
         if (!isMatch) {
+            console.log('❌ Password does not match');
             return res.status(401).json({ message: 'Invalid email or password.' });
         }
+        
+        console.log('✅ Password matched, generating token');
         // Generate JWT token
         const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
         res.json({ 
@@ -38,6 +57,7 @@ router.post('/login', async (req, res) => {
             token
         });
     } catch (err) {
+        console.error('❌ Login error:', err);
         res.status(500).json({ message: 'Server error' });
     }
 });

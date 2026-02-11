@@ -11,6 +11,9 @@ const userSchema = new mongoose.Schema({
     profilePictureUrl: { type: String, default: '' },
     brandName: { type: String, default: '' },
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+    ,
+    resetPasswordToken: { type: String, default: null },
+    resetPasswordExpiry: { type: Date, default: null }
 });
 
 // Add this pre-save hook:

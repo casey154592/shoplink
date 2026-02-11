@@ -31,8 +31,8 @@ router.post('/signup', async (req, res) => {
         if (exists) {
             return res.status(409).json({ message: 'User with this email already exists.' });
         }
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new UserModel({ username, email: emailLower, password: hashedPassword, role });
+        // Let the User model pre-save hook handle hashing to avoid double-hashing
+        const newUser = new UserModel({ username, email: emailLower, password, role });
         await newUser.save();
         // Generate JWT token
         const token = jwt.sign({ id: newUser._id, email: newUser.email, role: newUser.role }, JWT_SECRET, { expiresIn: '7d' });
