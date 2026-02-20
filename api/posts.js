@@ -280,4 +280,71 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+// POST /api/posts/:id/like - Like a post
+router.post('/:id/like', auth, async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const userId = req.user._id;
+
+        const post = await Post.findById(postId);
+        if (!post) return res.status(404).json({ message: 'Post not found' });
+
+        const isLiked = post.likes.some(like => like.toString() === userId.toString());
+
+        if (isLiked) {
+            // Unlike
+            post.likes = post.likes.filter(like => like.toString() !== userId.toString());
+        } else {
+            // Like
+            post.likes.push(userId);
+        }
+
+        await post.save();
+        res.json({ likes: post.likes.length, isLiked: !isLiked });
+    } catch (err) {
+        res.status(500).json({ message: 'Failed to like post', error: err.message });
+    }
+});
+
+// POST /api/posts/:id/comment - Add a comment
+router.post('/:id/comment', auth, async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const { text } = req.body;
+
+        if (!text || text.trim().length === 0) {
+            return res.status(400).json({ message: 'Comment text is required' });
+        }
+
+        const post = await Post.findById(postId);
+        if (!post) return res.status(404).json({ message: 'Post not found' });
+
+        const newComment = {
+            userId: req.user._id,
+            username: req.user.username,
+            text: text.trim(),
+            createdAt: new Date()
+        };
+
+        post.comments.push(newComment);
+        await post.save();
+
+        res.json({ comment: newComment, commentCount: post.comments.length });
+    } catch (err) {
+        res.status(500).json({ message: 'Failed to add comment', error: err.message });
+    }
+});
+
+// GET /api/posts/:id/comments - Get comments for a post
+router.get('/:id/comments', async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+        if (!post) return res.status(404).json({ message: 'Post not found' });
+
+        res.json({ comments: post.comments, count: post.comments.length });
+    } catch (err) {
+        res.status(500).json({ message: 'Failed to fetch comments', error: err.message });
+    }
+});
+
 module.exports = router;

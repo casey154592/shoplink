@@ -6,6 +6,13 @@ const postSchema = new mongoose.Schema({
     price: { type: Number, required: true },
     description: { type: String, required: true },
     negotiable: { type: Boolean, default: false },
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    comments: [{
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        username: String,
+        text: String,
+        createdAt: { type: Date, default: Date.now }
+    }],
     createdAt: { type: Date, default: Date.now }
 });
 

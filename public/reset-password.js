@@ -12,6 +12,8 @@
   const requestMsg = document.getElementById('request-msg');
 
   const confirmBtn = document.getElementById('confirm-btn');
+  const usernameInput = document.getElementById('username');
+  const emailConfirmInput = document.getElementById('email-confirm');
   const newPasswordInput = document.getElementById('new-password');
   const confirmPasswordInput = document.getElementById('confirm-password');
   const confirmMsg = document.getElementById('confirm-msg');
@@ -47,8 +49,13 @@
   });
 
   confirmBtn.addEventListener('click', async () => {
+    const username = usernameInput.value.trim();
+    const email = emailConfirmInput.value.trim().toLowerCase();
     const p1 = newPasswordInput.value;
     const p2 = confirmPasswordInput.value;
+
+    if (!username) return showMessage(confirmMsg, 'Please enter your username.', false);
+    if (!email) return showMessage(confirmMsg, 'Please enter your email.', false);
     if (!p1 || !p2) return showMessage(confirmMsg, 'Please enter and confirm your new password.', false);
     if (p1 !== p2) return showMessage(confirmMsg, 'Passwords do not match.', false);
 
@@ -58,7 +65,7 @@
       const res = await fetch('/api/password-reset/confirm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, newPassword: p1 })
+        body: JSON.stringify({ token, username, email, newPassword: p1 })
       });
       const data = await res.json();
       if (res.ok) {

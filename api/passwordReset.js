@@ -48,12 +48,22 @@ router.post('/password-reset/request', async (req, res) => {
 
 // Confirm password reset
 router.post('/password-reset/confirm', async (req, res) => {
-  const { token, newPassword } = req.body;
-  if (!token || !newPassword) return res.status(400).json({ message: 'Token and new password are required.' });
+  const { token, username, email, newPassword } = req.body;
+  if (!token || !username || !email || !newPassword) {
+    return res.status(400).json({ message: 'Token, username, email, and new password are required.' });
+  }
 
   try {
-    const user = await User.findOne({ resetPasswordToken: token, resetPasswordExpiry: { $gt: Date.now() } });
-    if (!user) return res.status(400).json({ message: 'Invalid or expired token.' });
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpiry: { $gt: Date.now() },
+      username: username.toLowerCase(),
+      email: email.toLowerCase()
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid username, email, or expired token.' });
+    }
 
     user.password = newPassword; // will be hashed by pre-save hook
     user.resetPasswordToken = null;

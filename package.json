@@ -4,7 +4,8 @@
   "description": "Shop With Gloria web application",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "test-email": "node scripts/test_email.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
