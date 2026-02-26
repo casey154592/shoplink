@@ -67,7 +67,7 @@
                 const data = await res.json();
                 localStorage.setItem('user', JSON.stringify(data));
                 showPopup('Signed up with Google! Redirecting...', true);
-                setTimeout(() => { window.location.href = 'questions.html'; }, 1800);
+                setTimeout(() => { window.location.href = 'feed.html'; }, 1800);
             } else {
                 showPopup('Google sign up failed. Please try again.', false);
             }
