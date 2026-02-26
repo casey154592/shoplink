@@ -216,7 +216,7 @@
             text-shadow: 0 2px 8px rgba(123,47,242,0.08);
             display: inline-block;
             margin-bottom: 0.5rem;
-            text-decoration: none; /* Remove underline */
+            text-decoration: none; 
         }
         .footer__logo a {
             color: inherit;
@@ -334,6 +334,15 @@
             margin-bottom: 0.5rem;
             text-decoration: none; /* Remove underline */
         }
+
+        .footerlogo{
+            width: 120px;
+            height: auto;
+            padding: 30px;
+            
+        }
+
+
         .footer__logo a {
             color: inherit;
             text-decoration: none; /* Remove underline from the link */
@@ -457,6 +466,7 @@
                 top: 100%;
                 left: 0;
                 width: 100vw;
+                height: 50vh;
                 background: #fff;
                 flex-direction: column;
                 align-items: flex-start;
@@ -620,6 +630,7 @@
                 top: 100%;
                 left: 0;
                 width: 100vw;
+                height: 100vh;
                 background: #fff;
                 flex-direction: column;
                 align-items: flex-start;
@@ -762,7 +773,7 @@
             <button class="navbar__toggle" id="navbar-toggle" aria-label="Open menu">
                 <i class="fas fa-bars"></i>
             </button>
-            <a href="index.html" id="navbar__logo">Shoplink</a>
+            <a href="index.html" id="navbar__logo"><img src="images/Shoplink logo.svg" alt="ShopLink Logo"></a>
             <ul class="navbar__menu" id="navbar-menu">
                 <li class="navbar__item">
                     <a href="#home" class="navbar__links" id="home-page">
@@ -910,9 +921,9 @@
         <section class="social__media">
             <div class="social__media--wrap">
                 <div class="footer__logo">
-                    <a href="/" id="footer__logo">Shoplink</a>
+                    <a href="/" id="footer__logo"><img src="images/Shoplink logo.svg" alt="ShopLink Logo" class="footerlogo"></a>
                 </div>
-                <p class="website__rights">&copy; Shoplink 2025. All right reserved</p>
+                <p class="website__rights">&copy; ShopLink 2025. All right reserved</p>
                 <div class="social__icons">
                     <a href="/" class="social__icons--links" target="_blank"><i class="fab fa-facebook"></i></a>
                     <a href="/" class="social__icons--links" target="_blank"><i class="fab fa-instagram"></i></a>
