@@ -70,8 +70,11 @@ router.post('/', auth, upload.single('productImage'), async (req, res) => {
         });
         await post.save();
 
+        // Fetch CEO data now (used in notifications and response)
+        const ceo = await UserModel.findById(ceoId);
+
         // Create notifications for followers
-        if (ceo.followers && ceo.followers.length > 0) {
+        if (ceo && ceo.followers && ceo.followers.length > 0) {
             const brandName = ceo.brandName || ceo.username;
             for (const followerId of ceo.followers) {
                 await createNotification(
@@ -86,7 +89,6 @@ router.post('/', auth, upload.single('productImage'), async (req, res) => {
         }
 
         // Populate author info for the response
-        const ceo = await UserModel.findById(ceoId);
         const postWithAuthor = {
             ...post.toObject(),
             author: ceo ? {

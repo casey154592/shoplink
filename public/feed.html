@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Feed - Shoplink</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="images/shoplink favicon.png">
@@ -40,6 +41,23 @@
             color: #7b2ff2;
             letter-spacing: 1.5px;
             text-shadow: 0 2px 8px rgba(123,47,242,0.08);
+            /* add subtle gradient effect to give logo feel */
+            background: linear-gradient(90deg, #7b2ff2, #f357a8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+        }
+        /* new image-based logo container */
+        .shoplinklogo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 0.25rem;
+        }
+        .shoplinklogo img {
+            height: 44px;
+            width: auto;
+            max-width: 80vw;
         }
         .header-icons {
             display: flex;
@@ -437,6 +455,18 @@
             #feed-posts {
                 max-width: 98vw;
             }
+            /* ensure header title scales nicely on small narrow devices */
+            .feed-header h1 {
+                font-size: 1.8rem;
+                letter-spacing: 1px;
+                /* remove gradient fill on tiny screens for readability */
+                background: none;
+                -webkit-text-fill-color: #7b2ff2;
+            }
+            /* shrink image logo on small screens */
+            .shoplinklogo img {
+                height: 32px;
+            }
         }
         /* Post Creation Modal Styles */
         .post-modal {
@@ -599,7 +629,9 @@
 
     <div class="feed-container">
         <div class="feed-header">
-            <h1>Shoplink</h1>
+            <div class="shoplinklogo">
+            <img src="./images/SHOPLINK emp2.svg" alt="">
+            </div>
             <div class="header-icons">
                 <button id="profile-btn" class="profile-btn" title="My Profile">
                     <i class="fa fa-user"></i>
@@ -652,7 +684,7 @@
                 </div>
                 <div class="post-form-group">
                     <label for="post-image">Product Image</label>
-                    <input type="file" id="post-image" name="productImage" accept="image/*" required>
+                    <input type="file" id="post-image" name="productImage" accept="image/video*" required>
                 </div>
                 <button type="submit" id="post-submit-btn" class="post-submit-btn">Create Post</button>
                 <div id="post-loading" class="post-loading" style="display:none;">Creating post...</div>

@@ -53,6 +53,13 @@
             text-decoration: none;
             letter-spacing: 1.5px;
         }
+        /* Ensure logo image scales and doesn't overflow on small screens */
+        #navbar__logo img {
+            display: block;
+            height: 44px;
+            width: auto;
+            max-width: 100%;
+        }
         .navbar__menu {
             display: flex;
             align-items: center;
@@ -452,6 +459,10 @@
                 transform: translateX(-50%);
                 z-index: 102;
                 font-size: 1.6rem;
+            }
+            /* smaller logo height on narrow screens */
+            #navbar__logo img {
+                height: 32px;
             }
             .navbar__toggle {
                 display: block;

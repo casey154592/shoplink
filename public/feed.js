@@ -44,6 +44,24 @@ document.addEventListener('DOMContentLoaded', async function() {
         cartBadge.style.display = 'flex';
     }
 
+    // Hide cart button and sidebar cart link for CEOs, hide create post button for customers
+    const cartBtn = document.getElementById('cart-btn');
+    const addPostBtn = document.getElementById('add-post-btn');
+    const sideMenu = document.getElementById('side-menu');
+    const normalizedRole = userRole ? userRole.toLowerCase() : '';
+    
+    if (normalizedRole === 'ceo') {
+        if (cartBtn) cartBtn.style.display = 'none';
+        // Hide cart link in sidebar for CEOs
+        if (sideMenu) {
+            const cartLink = sideMenu.querySelector('a[href="cart.html"]');
+            if (cartLink) cartLink.style.display = 'none';
+        }
+    }
+    if (normalizedRole === 'customer') {
+        if (addPostBtn) addPostBtn.style.display = 'none';
+    }
+
     // Fetch and render posts (with Ceo info, follow button, add to cart)
     async function loadFeed() {
         feedPosts.innerHTML = '<div>Loading...</div>';
@@ -433,7 +451,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (notifBadge) loadNotifications();
 
     // Post Creation Modal Functionality
-    const addPostBtn = document.getElementById('add-post-btn');
+    // const addPostBtn = document.getElementById('add-post-btn');
     const postModal = document.getElementById('post-modal');
     const postModalClose = document.getElementById('post-modal-close');
     const createPostForm = document.getElementById('create-post-form');
@@ -582,7 +600,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     // Slide-in menu functionality and profile info
-    const sideMenu = document.getElementById('side-menu');
+    // const sideMenu = document.getElementById('side-menu');
     const openMenu = document.getElementById('open-menu');
     const closeMenu = document.getElementById('close-menu');
 
@@ -656,8 +674,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     // Update cart badge with number of items (only for customers)
-    const cartBtn = document.getElementById('cart-btn');
-    cartBadge = document.getElementById('cart-badge');
+    // const cartBtn = document.getElementById('cart-btn');
+    // const cartBadge = document.getElementById('cart-badge');
     if (userRole === 'customer') {
         const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
         if (cartItems.length > 0) {
@@ -674,7 +692,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     } else {
         // Hide cart button for CEOs
-        if (cartBtn) {
+        if (userRole==='CEOs') {
             cartBtn.style.display = 'none';
         }
     }
