@@ -27,7 +27,7 @@ router.post('/', auth, async (req, res) => {
             return res.status(403).json({ message: 'Only customers can initiate transactions' });
         }
 
-        const { postId, amount, description } = req.body;
+        const { postId, amount, description, initialMessage } = req.body;
 
         if (!postId || !amount || !description) {
             return res.status(400).json({ message: 'Post ID, amount, and description are required' });
@@ -39,21 +39,26 @@ router.post('/', auth, async (req, res) => {
             return res.status(404).json({ message: 'Post not found' });
         }
 
-        const transaction = new Transaction({
+        const transactionData = {
             customerId: req.user._id,
             ceoId: post.ceoId,
             postId: postId,
             amount: parseFloat(amount),
             description: description.trim(),
             status: 'pending'
-        });
+        };
 
+        if (initialMessage && initialMessage.trim().length > 0) {
+            transactionData.messages = [{ senderId: req.user._id, text: initialMessage.trim() }];
+        }
+
+        const transaction = new Transaction(transactionData);
         await transaction.save();
 
         // Create notification for CEO
         await createNotification(
-            ceoId,
-            customerId,
+            post.ceoId,
+            req.user._id,
             'transaction_created',
             'New Transaction Request',
             `${req.user.username} wants to purchase your product for ₦${amount}`,
@@ -103,7 +108,7 @@ router.get('/', auth, async (req, res) => {
 // Update transaction status (CEO or customer can update based on role)
 router.put('/:id', auth, async (req, res) => {
     try {
-        const { status } = req.body;
+        const { status, message } = req.body;
         const transactionId = req.params.id;
 
         const transaction = await Transaction.findById(transactionId);
@@ -134,6 +139,9 @@ router.put('/:id', auth, async (req, res) => {
             return res.status(403).json({ message: 'CEOs can only update to in_progress, completed, or failed' });
         }
 
+        if (message && message.trim().length > 0) {
+            transaction.messages.push({ senderId: req.user._id, text: message.trim() });
+        }
         transaction.status = status;
         await transaction.save();
 
@@ -184,6 +192,79 @@ router.put('/:id', auth, async (req, res) => {
     }
 });
 
+// GET a specific transaction by ID
+router.get('/:id', auth, async (req, res) => {
+    try {
+        const transaction = await Transaction.findById(req.params.id)
+            .populate('customerId', 'username profilePictureUrl')
+            .populate('ceoId', 'username profilePictureUrl brandName')
+            .populate('postId', 'description price imageUrl');
+        
+        if (!transaction) return res.status(404).json({ message: 'Transaction not found' });
+        
+        // Ensure only parties can view
+        const isParty = [transaction.customerId._id.toString(), transaction.ceoId._id.toString()].includes(req.user._id.toString());
+        if (!isParty) return res.status(403).json({ message: 'Access denied' });
+        
+        res.json(transaction);
+    } catch (err) {
+        console.error('Fetch transaction error:', err);
+        res.status(500).json({ message: 'Failed to fetch transaction', error: err.message });
+    }
+});
+
+// GET messages for a transaction
+router.get('/:id/messages', auth, async (req, res) => {
+    try {
+        const transaction = await Transaction.findById(req.params.id);
+        if (!transaction) return res.status(404).json({ message: 'Transaction not found' });
+        // ensure only parties can view
+        const isParty = [transaction.customerId.toString(), transaction.ceoId.toString()].includes(req.user._id.toString());
+        if (!isParty) return res.status(403).json({ message: 'Access denied' });
+        // populate sender info
+        const messages = await Promise.all((transaction.messages || []).map(async msg => {
+            const sender = await UserModel.findById(msg.senderId, 'username profilePictureUrl');
+            return {
+                ...msg.toObject(),
+                sender: sender ? { id: sender._id, username: sender.username, profilePictureUrl: sender.profilePictureUrl } : null
+            };
+        }));
+        res.json({ messages });
+    } catch (err) {
+        console.error('Fetch messages error:', err);
+        res.status(500).json({ message: 'Failed to fetch messages', error: err.message });
+    }
+});
+
+// POST a message to a transaction
+router.post('/:id/messages', auth, async (req, res) => {
+    try {
+        const { text } = req.body;
+        if (!text || text.trim().length === 0) {
+            return res.status(400).json({ message: 'Message text is required' });
+        }
+        const transaction = await Transaction.findById(req.params.id);
+        if (!transaction) return res.status(404).json({ message: 'Transaction not found' });
+        const isParty = [transaction.customerId.toString(), transaction.ceoId.toString()].includes(req.user._id.toString());
+        if (!isParty) return res.status(403).json({ message: 'Access denied' });
+        transaction.messages.push({ senderId: req.user._id, text: text.trim() });
+        await transaction.save();
+        // Notify opposite party about new message
+        const otherPartyId = transaction.customerId.toString() === req.user._id.toString() ? transaction.ceoId : transaction.customerId;
+        await createNotification(
+            otherPartyId,
+            req.user._id,
+            'message',
+            'New Message',
+            `${req.user.username} sent you a message regarding the transaction`,
+            transaction._id
+        );
+        res.status(201).json({ message: 'Message sent successfully' });
+    } catch (err) {
+        console.error('Send message error:', err);
+        res.status(500).json({ message: 'Failed to send message', error: err.message });
+    }
+});
 // Get transaction statistics for a user
 router.get('/stats/:userId', auth, async (req, res) => {
     try {

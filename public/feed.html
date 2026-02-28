@@ -47,7 +47,6 @@
             -webkit-text-fill-color: transparent;
             font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
         }
-        /* new image-based logo container */
         .shoplinklogo {
             display: flex;
             justify-content: center;
@@ -683,8 +682,10 @@
                     </select>
                 </div>
                 <div class="post-form-group">
-                    <label for="post-image">Product Image</label>
-                    <input type="file" id="post-image" name="productImage" accept="image/video*" required>
+                    <label for="post-image">Product Media</label>
+                    <!-- allow multiple images/videos -->
+                    <input type="file" id="post-image" name="media" accept="image/*,video/*" multiple required>
+                    <small>You can select several images or videos.</small>
                 </div>
                 <button type="submit" id="post-submit-btn" class="post-submit-btn">Create Post</button>
                 <div id="post-loading" class="post-loading" style="display:none;">Creating post...</div>

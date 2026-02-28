@@ -19,9 +19,31 @@ document.addEventListener('DOMContentLoaded', async function() {
         return;
     }
 
-    cartItemsDiv.innerHTML = cartPosts.map(post => `
+    // helper to get first media element
+    function getFirstMediaPost(post) {
+        if (post.media && post.media.length > 0) {
+            return post.media[0];
+        }
+        // fallback to legacy imageUrl
+        if (post.imageUrl) {
+            return { url: post.imageUrl, type: 'image' };
+        }
+        return null;
+    }
+
+    cartItemsDiv.innerHTML = cartPosts.map(post => {
+        const media = getFirstMediaPost(post);
+        let mediaHtml = '';
+        if (media) {
+            if (media.type === 'video') {
+                mediaHtml = `<video controls class="cart-item-img"><source src="${media.url}" type="video/mp4">Your browser does not support video.</video>`;
+            } else {
+                mediaHtml = `<img src="${media.url}" alt="Product Image" class="cart-item-img">`;
+            }
+        }
+        return `
         <div class="cart-item">
-            <img src="${post.imageUrl}" alt="Product Image" class="cart-item-img">
+            ${mediaHtml}
             <div class="cart-item-details">
                 <div class="cart-item-title">${post.description?.slice(0, 30) || 'Product'}</div>
                 <div class="cart-item-desc">${post.description || ''}</div>

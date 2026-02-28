@@ -23,24 +23,25 @@ async function auth(req, res, next) {
 }
 
 // Test route without auth
-router.get('/test', (req, res) => {
+router.get('/test', (_req, res) => {
     console.log('GET /api/posts/test called');
     res.json({ message: 'Posts API test route working!', timestamp: new Date().toISOString() });
 });
 
-// Multer setup for image upload
+// Multer setup for uploads (images + videos)
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
+    destination: function (_req, _file, cb) {
         cb(null, path.join(__dirname, '../public/uploads'));
     },
-    filename: function (req, file, cb) {
+    filename: function (_req, file, cb) {
         cb(null, Date.now() + '-' + file.originalname);
     }
 });
 const upload = multer({ storage });
 
 // Create a new product post (Ceo only)
-router.post('/', auth, upload.single('productImage'), async (req, res) => {
+// now accepts multiple files under field name "media"
+router.post('/', auth, upload.array('media', 10), async (req, res) => {
     console.log('POST /api/posts called with auth');
     try {
         // Check if user is authenticated and is a CEO
@@ -54,16 +55,22 @@ router.post('/', auth, upload.single('productImage'), async (req, res) => {
         const { price, description, negotiable } = req.body;
 
         // Validate required fields
-        if (!description || !price || !req.file) {
-            return res.status(400).json({ message: 'Description, price, and image are required' });
+        if (!description || !price || !req.files || req.files.length === 0) {
+            return res.status(400).json({ message: 'Description, price, and at least one media file are required' });
         }
 
-        const imageUrl = `/uploads/${req.file.filename}`;
         const ceoId = req.user.id;
+
+        // Build media array from uploaded files
+        const baseUrl = req.protocol + '://' + req.get('host');
+        const media = req.files.map(file => ({
+            url: `${baseUrl}/uploads/${file.filename}`,
+            type: file.mimetype.startsWith('video/') ? 'video' : 'image'
+        }));
 
         const post = new Post({
             ceoId,
-            imageUrl,
+            media,
             price: parseFloat(price),
             description: description.trim(),
             negotiable: negotiable === 'on' || negotiable === true || negotiable === 'true'
@@ -114,8 +121,17 @@ router.get('/', async (req, res) => {
         // Populate Ceo info for each post
         const postsWithAuthor = await Promise.all(posts.map(async post => {
             const ceo = await UserModel.findById(post.ceoId);
+            // migrate old imageUrl if media is empty
+            let mediaList = post.media || [];
+            if ((!mediaList || mediaList.length === 0) && post.imageUrl) {
+                const baseUrl = req.protocol + '://' + req.get('host');
+                const url = post.imageUrl.startsWith('http') ? post.imageUrl : `${baseUrl}${post.imageUrl}`;
+                mediaList = [{ url, type: 'image' }];
+            }
+            const postObj = post.toObject();
+            postObj.media = mediaList;
             return {
-                ...post.toObject(),
+                ...postObj,
                 author: ceo ? {
                     id: ceo._id,
                     username: ceo.username,
@@ -213,7 +229,8 @@ router.delete('/:id', auth, async (req, res) => {
 });
 
 // PUT /api/posts/:id - Edit a post (only by the post owner)
-router.put('/:id', auth, async (req, res) => {
+// this route now supports uploading new media which will replace existing media array
+router.put('/:id', auth, upload.array('media', 10), async (req, res) => {
     console.log('PUT /api/posts/:id called with id:', req.params.id);
     console.log('Request body:', req.body);
     console.log('User:', req.user ? req.user.id : 'No user');
@@ -239,21 +256,43 @@ router.put('/:id', auth, async (req, res) => {
             return res.status(400).json({ message: 'Description and price are required' });
         }
 
-        // Update the post
+        // build update object
+        const updateData = {
+            description: description.trim(),
+            price: parseFloat(price),
+            negotiable: negotiable === 'on' || negotiable === true || negotiable === 'true'
+        };
+
+        // if new files were uploaded, replace the media array
+        if (req.files && req.files.length > 0) {
+            updateData.media = req.files.map(file => ({
+                url: `/uploads/${file.filename}`,
+                type: file.mimetype.startsWith('video/') ? 'video' : 'image'
+            }));
+            // optionally remove legacy imageUrl
+            updateData.imageUrl = undefined;
+        }
+
         const updatedPost = await Post.findByIdAndUpdate(
             postId,
-            {
-                description: description.trim(),
-                price: parseFloat(price),
-                negotiable: negotiable === 'on' || negotiable === true || negotiable === 'true'
-            },
+            updateData,
             { new: true }
         );
 
         // Populate author info for the response
         const ceo = await UserModel.findById(updatedPost.ceoId);
+        // ensure media fallback
+        let mediaList = updatedPost.media || [];
+        if ((!mediaList || mediaList.length === 0) && updatedPost.imageUrl) {
+            const baseUrl = req.protocol + '://' + req.get('host');
+            const url = updatedPost.imageUrl.startsWith('http') ? updatedPost.imageUrl : `${baseUrl}${updatedPost.imageUrl}`;
+            mediaList = [{ url, type: 'image' }];
+        }
+        const postObj = updatedPost.toObject();
+        postObj.media = mediaList;
+
         const postWithAuthor = {
-            ...updatedPost.toObject(),
+            ...postObj,
             author: ceo ? {
                 id: ceo._id,
                 username: ceo.username,
@@ -276,7 +315,13 @@ router.get('/:id', async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
         if (!post) return res.status(404).json({ message: 'Post not found' });
-        res.json(post);
+        let postObj = post.toObject();
+        if ((!postObj.media || postObj.media.length === 0) && postObj.imageUrl) {
+            const baseUrl = req.protocol + '://' + req.get('host');
+            const url = postObj.imageUrl.startsWith('http') ? postObj.imageUrl : `${baseUrl}${postObj.imageUrl}`;
+            postObj.media = [{ url, type: 'image' }];
+        }
+        res.json(postObj);
     } catch (err) {
         res.status(500).json({ message: 'Failed to fetch post', error: err.message });
     }

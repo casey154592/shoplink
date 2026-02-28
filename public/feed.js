@@ -75,6 +75,19 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
         feedPosts.innerHTML = '';
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        // helper to build media HTML
+        function getMediaHtml(mediaArray) {
+            if (!mediaArray || mediaArray.length === 0) return '';
+            let html = '';
+            mediaArray.forEach(item => {
+                if (item.type === 'video') {
+                    html += `<video controls class="product-img" style="max-width:100%;height:auto;margin-bottom:0.5rem;"><source src="${item.url}" type="video/mp4">Your browser does not support video.</video>`;
+                } else {
+                    html += `<img src="${item.url}" alt="Product Image" class="product-img">`;
+                }
+            });
+            return html;
+        }
         posts.forEach(post => {
             const isFollowing = (post.author?.followers || []).includes(userId);
             const showFollowBtn = userRole === 'customer' && post.author && post.author.id !== userId && !isFollowing;
@@ -92,7 +105,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             const likeCount = post.likes ? post.likes.length : 0;
             const commentCount = post.comments ? post.comments.length : 0;
             const inCart = cart.includes(post._id);
-            
+
             feedPosts.innerHTML += `
                 <div class="product-card" data-post-id="${post._id}">
                     <div class="product-card-header">
@@ -108,7 +121,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                             ${followBtnHtml}
                         </div>
                     </div>
-                    <img src="${post.imageUrl}" alt="Product Image" class="product-img">
+                    ${getMediaHtml(post.media)}
                     <div class="product-info">
                         <div class="product-price">
                             ₦<span>${post.price}</span>
@@ -125,6 +138,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                             <button class="like-btn" data-post-id="${post._id}" style="flex:1;background:${isLiked ? '#f357a8' : '#f0f0f0'};color:${isLiked ? '#fff' : '#333'};border:none;padding:0.6rem;border-radius:5px;cursor:pointer;"><i class="fa fa-heart${isLiked ? '' : '-o'}"></i> ${isLiked ? 'Unlike' : 'Like'}</button>
                             <button class="comment-btn" data-post-id="${post._id}" style="flex:1;background:#f0f0f0;color:#333;border:none;margin-left:0.5rem;padding:0.6rem;border-radius:5px;cursor:pointer;"><i class="fa fa-comment"></i> Comment</button>
                             ${userRole === 'customer' ? `<button class="add-to-cart-btn" data-post-id="${post._id}" ${inCart ? 'disabled' : ''} style="flex:1;background:${inCart ? '#888' : '#7b2ff2'};color:#fff;border:none;margin-left:0.5rem;padding:0.6rem;border-radius:5px;cursor:${inCart ? 'not-allowed' : 'pointer'};">${inCart ? '<i class="fa fa-check"></i> In Cart' : '<i class="fa fa-shopping-cart"></i> Add to Cart'}</button>` : ''}
+                            ${userRole === 'customer' ? `<button class="purchase-btn" data-post-id="${post._id}" data-post-price="${post.price}" data-post-description="${post.description.replace(/"/g, '&quot;')}" style="flex:1;background:#28a745;color:#fff;border:none;margin-left:0.5rem;padding:0.6rem;border-radius:5px;cursor:pointer;"><i class="fa fa-bolt"></i> Purchase Now</button>` : ''}
                             ${userRole === 'CEO' && post.author?.id === userId ? `<button class="edit-post-btn" data-post-id="${post._id}" style="flex:1;background:#ffc107;color:#000;border:none;margin-left:0.5rem;padding:0.6rem;border-radius:5px;cursor:pointer;">Edit Post</button>` : ''}
                             ${userRole === 'CEO' && post.author?.id === userId ? `<button class="delete-post-btn" data-post-id="${post._id}" style="flex:1;background:#dc3545;color:white;border:none;margin-left:0.5rem;padding:0.6rem;border-radius:5px;cursor:pointer;"><i class="fa fa-trash"></i> Delete</button>` : ''}
                         </div>
@@ -184,6 +198,54 @@ document.addEventListener('DOMContentLoaded', async function() {
                     cartBadge.style.display = cart.length > 0 ? 'flex' : 'none';
                 } else {
                     showPopup('Already in cart!', false);
+                }
+            });
+        });
+
+        // Purchase button logic
+        document.querySelectorAll('.purchase-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const postId = this.dataset.postId;
+                const postPrice = parseFloat(this.dataset.postPrice);
+                const postDescription = this.dataset.postDescription;
+                
+                if (!postId) {
+                    showPopup('Post not found', false);
+                    return;
+                }
+
+                try {
+                    // Create transaction with initial message
+                    const response = await fetch('/api/transactions', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            postId: postId,
+                            amount: postPrice,
+                            description: `Buyer interested in: ${postDescription}`,
+                            initialMessage: "I'm interested in your product"
+                        })
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        const transactionId = result.transaction._id;
+                        showPopup('Transaction created! Redirecting to chat...', true);
+                        
+                        // Redirect to transaction detail page
+                        setTimeout(() => {
+                            window.location.href = `transaction-chat.html?id=${transactionId}`;
+                        }, 1000);
+                    } else {
+                        const error = await response.json();
+                        showPopup(error.message || 'Failed to create transaction', false);
+                    }
+                } catch (error) {
+                    console.error('Purchase error:', error);
+                    showPopup('An error occurred while processing your purchase', false);
                 }
             });
         });
@@ -509,8 +571,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                 showPopup('Please enter a valid price greater than 0.', false);
                 return;
             }
-            if (!imageInput.files[0]) {
-                showPopup('Please select a product image.', false);
+            if (!imageInput.files || imageInput.files.length === 0) {
+                showPopup('Please select at least one media file.', false);
                 return;
             }
 
@@ -523,7 +585,10 @@ document.addEventListener('DOMContentLoaded', async function() {
                 formData.append('description', description);
                 formData.append('price', price);
                 formData.append('negotiable', document.getElementById('post-negotiable').value);
-                formData.append('productImage', imageInput.files[0]);
+                // append all selected files
+                for (let i = 0; i < imageInput.files.length; i++) {
+                    formData.append('media', imageInput.files[i]);
+                }
 
                 const response = await fetch('/api/posts', {
                     method: 'POST',

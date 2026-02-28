@@ -78,6 +78,20 @@ document.addEventListener('DOMContentLoaded', async function() {
                 return;
             }
 
+            // helper for media rendering
+            function renderMedia(mediaArray) {
+                if (!mediaArray || mediaArray.length === 0) return '';
+                let html = '';
+                mediaArray.forEach(item => {
+                    if (item.type === 'video') {
+                        html += `<video controls class="post-image" style="max-width:100%;height:auto;display:block;margin-bottom:0.5rem;"><source src="${item.url}" type="video/mp4">Your browser does not support video.</video>`;
+                    } else {
+                        html += `<img src="${item.url}" alt="Product Image" class="post-image">`;
+                    }
+                });
+                return html;
+            }
+
             postsContainer.innerHTML = userPosts.map(post => {
                 const negotiableBadge = post.negotiable
                     ? `<span class="negotiable-badge">Negotiable</span>`
@@ -85,7 +99,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
                 return `
                     <div class="post-card">
-                        <img src="${post.imageUrl}" alt="Product Image" class="post-image">
+                        ${renderMedia(post.media)}
                         <div class="post-content">
                             <div class="post-price">
                                 ₦<span>${post.price}</span>

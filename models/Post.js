@@ -2,7 +2,13 @@ const mongoose = require('mongoose');
 
 const postSchema = new mongoose.Schema({
     ceoId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    imageUrl: { type: String, required: true },
+    // new field supporting multiple images/videos
+    media: [{
+        url: { type: String, required: true },
+        type: { type: String, enum: ['image', 'video'], required: true }
+    }],
+    // keep old field for backwards compatibility; will be migrated on the fly if needed
+    imageUrl: { type: String },
     price: { type: Number, required: true },
     description: { type: String, required: true },
     negotiable: { type: Boolean, default: false },

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Chat - ShopLink</title>
+    <link rel="stylesheet" href="./css.style/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="images/shoplink favicon.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f9f6ff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        .chat-container {
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #7b2ff2, #f357a8);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(123, 47, 242, 0.2);
+        }
+
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .chat-back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .chat-back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .chat-other-party {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chat-other-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+        }
+
+        .chat-other-info h3 {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .chat-other-role {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .transaction-status {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .chat-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .chat-main {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            border-right: 1px solid #ddd;
+        }
+
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+
+        .message.sent {
+            justify-content: flex-end;
+        }
+
+        .message.received {
+            justify-content: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 60%;
+            padding: 0.75rem 1rem;
+            border-radius: 15px;
+            word-wrap: break-word;
+        }
+
+        .message.sent .message-bubble {
+            background: #7b2ff2;
+            color: white;
+        }
+
+        .message.received .message-bubble {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: #999;
+            margin-top: 0.25rem;
+            text-align: center;
+        }
+
+        .input-area {
+            padding: 1rem;
+            border-top: 1px solid #ddd;
+            background: white;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: #7b2ff2;
+            box-shadow: 0 0 5px rgba(123, 47, 242, 0.3);
+        }
+
+        .send-btn {
+            background: #7b2ff2;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .send-btn:hover {
+            background: #f357a8;
+        }
+
+        .transaction-sidebar {
+            width: 300px;
+            background: white;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .transaction-sidebar.active {
+            display: block;
+        }
+
+        .sidebar-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar-section h4 {
+            color: #7b2ff2;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .transaction-details {
+            background: #f9f6ff;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .transaction-detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #666;
+        }
+
+        .detail-value {
+            color: #333;
+        }
+
+        .transaction-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-direction: column;
+        }
+
+        .action-btn {
+            padding: 0.75rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .action-btn-primary {
+            background: #28a745;
+            color: white;
+        }
+
+        .action-btn-primary:hover {
+            background: #218838;
+        }
+
+        .action-btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .action-btn-danger:hover {
+            background: #c82333;
+        }
+
+        .action-btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .action-btn-secondary:hover {
+            background: #545b62;
+        }
+
+        .toggle-sidebar-btn {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .transaction-sidebar {
+                position: absolute;
+                right: 0;
+                top: 60px;
+                width: 100%;
+                max-width: 300px;
+                height: calc(100vh - 60px);
+                z-index: 100;
+            }
+
+            .chat-content {
+                flex-direction: column-reverse;
+            }
+
+            .chat-main {
+                border-right: none;
+                border-bottom: 1px solid #ddd;
+            }
+
+            .toggle-sidebar-btn {
+                display: block;
+                background: rgba(255, 255, 255, 0.2);
+                border: none;
+                color: white;
+                cursor: pointer;
+                padding: 0.5rem 1rem;
+                border-radius: 5px;
+                font-size: 1rem;
+            }
+
+            .message-bubble {
+                max-width: 80%;
+            }
+        }
+
+        .no-messages {
+            text-align: center;
+            color: #999;
+            padding: 2rem;
+            font-style: italic;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 0.5rem;
+        }
+
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-in_progress { background: #cce7ff; color: #0066cc; }
+        .status-completed { background: #d4edda; color: #155724; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+        .status-failed { background: #f8d7da; color: #721c24; }
+
+        /* Popup message styles */
+        .popup-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-left: 4px solid #7b2ff2;
+            padding: 1rem 1.5rem;
+            border-radius: 5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+            z-index: 1000;
+            max-width: 300px;
+        }
+
+        .popup-message.show {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .popup-close {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 1.2rem;
+            margin-left: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="chat-header-left">
+                <button class="chat-back-btn" id="back-btn"><i class="fa fa-arrow-left"></i></button>
+                <div class="chat-other-party">
+                    <img src="" id="other-avatar" alt="Avatar" class="chat-other-avatar">
+                    <div class="chat-other-info">
+                        <h3 id="other-name">Loading...</h3>
+                        <span class="chat-other-role" id="other-role"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="transaction-status" id="status-badge">PENDING</div>
+            <button class="toggle-sidebar-btn" id="toggle-sidebar"><i class="fa fa-bars"></i></button>
+        </div>
+
+        <div class="chat-content">
+            <div class="chat-main">
+                <div class="messages-area" id="messages-area">
+                    <div class="no-messages">No messages yet. Start the conversation!</div>
+                </div>
+                <div class="input-area">
+                    <input type="text" class="message-input" id="message-input" placeholder="Type a message..." disabled>
+                    <button class="send-btn" id="send-btn" disabled><i class="fa fa-paper-plane"></i></button>
+                </div>
+            </div>
+
+            <div class="transaction-sidebar" id="transaction-sidebar">
+                <div class="sidebar-section">
+                    <h4>Transaction Details</h4>
+                    <div class="transaction-details">
+                        <div class="transaction-detail-item">
+                            <span class="detail-label">Amount:</span>
+                            <span class="detail-value" id="trans-amount">₦0</span>
+                        </div>
+                        <div class="transaction-detail-item">
+                            <span class="detail-label">Status:</span>
+                            <span class="detail-value" id="trans-status">PENDING</span>
+                        </div>
+                        <div class="transaction-detail-item">
+                            <span class="detail-label">Date:</span>
+                            <span class="detail-value" id="trans-date">-</span>
+                        </div>
+                        <div id="product-details"></div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section" id="actions-section" style="display: none;">
+                    <h4>Actions</h4>
+                    <div class="transaction-actions" id="transaction-actions"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="popup-message" id="popup-message">
+        <span id="popup-text"></span>
+        <button class="popup-close" id="popup-close">&times;</button>
+    </div>
+
+    <script src="./transaction-chat.js"></script>
+</body>
+</html>

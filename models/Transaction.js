@@ -11,6 +11,12 @@ const transactionSchema = new mongoose.Schema({
         default: 'pending' 
     },
     description: { type: String, required: true },
+    // chat messages associated with this transaction
+    messages: [{
+        senderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        text: String,
+        createdAt: { type: Date, default: Date.now }
+    }],
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });
