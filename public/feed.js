@@ -90,14 +90,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
         posts.forEach(post => {
             const isFollowing = (post.author?.followers || []).includes(userId);
-            const showFollowBtn = userRole === 'customer' && post.author && post.author.id !== userId && !isFollowing;
+            const showFollowBtn = normalizedRole === 'customer' && post.author && post.author.id !== userId && !isFollowing;
             const followBtnHtml = showFollowBtn
                 ? `<button class="follow-ceo-btn" data-ceo-id="${post.author.id}"><i class="fa fa-user-plus"></i> Add Ceo</button>`
                 : '';
             const negotiableBadge = post.negotiable
                 ? `<span class="negotiable-badge">Negotiable</span>`
                 : `<span class="negotiable-badge" style="background:#888;">Not Negotiable</span>`;
-            const isOwnPost = userRole === 'CEO' && post.author && post.author.id === userId;
+            const isOwnPost = normalizedRole === 'ceo' && post.author && post.author.id === userId;
             const deleteBtnHtml = isOwnPost
                 ? `<button class="delete-post-btn" data-post-id="${post._id}" style="background:#dc3545;color:white;border:none;padding:5px 10px;border-radius:4px;margin-left:10px;"><i class="fa fa-trash"></i> Delete</button>`
                 : '';
@@ -137,10 +137,10 @@ document.addEventListener('DOMContentLoaded', async function() {
                         <div class="post-actions">
                             <button class="like-btn" data-post-id="${post._id}" style="flex:1;background:${isLiked ? '#f357a8' : '#f0f0f0'};color:${isLiked ? '#fff' : '#333'};border:none;padding:0.6rem;border-radius:5px;cursor:pointer;"><i class="fa fa-heart${isLiked ? '' : '-o'}"></i> ${isLiked ? 'Unlike' : 'Like'}</button>
                             <button class="comment-btn" data-post-id="${post._id}" style="flex:1;background:#f0f0f0;color:#333;border:none;margin-left:0.5rem;padding:0.6rem;border-radius:5px;cursor:pointer;"><i class="fa fa-comment"></i> Comment</button>
-                            ${userRole === 'customer' ? `<button class="add-to-cart-btn" data-post-id="${post._id}" ${inCart ? 'disabled' : ''} style="flex:1;background:${inCart ? '#888' : '#7b2ff2'};color:#fff;border:none;margin-left:0.5rem;padding:0.6rem;border-radius:5px;cursor:${inCart ? 'not-allowed' : 'pointer'};">${inCart ? '<i class="fa fa-check"></i> In Cart' : '<i class="fa fa-shopping-cart"></i> Add to Cart'}</button>` : ''}
-                            ${userRole === 'customer' ? `<button class="purchase-btn" data-post-id="${post._id}" data-post-price="${post.price}" data-post-description="${post.description.replace(/"/g, '&quot;')}" style="flex:1;background:#28a745;color:#fff;border:none;margin-left:0.5rem;padding:0.6rem;border-radius:5px;cursor:pointer;"><i class="fa fa-bolt"></i> Purchase Now</button>` : ''}
-                            ${userRole === 'CEO' && post.author?.id === userId ? `<button class="edit-post-btn" data-post-id="${post._id}" style="flex:1;background:#ffc107;color:#000;border:none;margin-left:0.5rem;padding:0.6rem;border-radius:5px;cursor:pointer;">Edit Post</button>` : ''}
-                            ${userRole === 'CEO' && post.author?.id === userId ? `<button class="delete-post-btn" data-post-id="${post._id}" style="flex:1;background:#dc3545;color:white;border:none;margin-left:0.5rem;padding:0.6rem;border-radius:5px;cursor:pointer;"><i class="fa fa-trash"></i> Delete</button>` : ''}
+                            ${normalizedRole === 'customer' ? `<button class="add-to-cart-btn" data-post-id="${post._id}" ${inCart ? 'disabled' : ''} style="flex:1;background:${inCart ? '#888' : '#7b2ff2'};color:#fff;border:none;margin-left:0.5rem;padding:0.6rem;border-radius:5px;cursor:${inCart ? 'not-allowed' : 'pointer'};">${inCart ? '<i class="fa fa-check"></i> In Cart' : '<i class="fa fa-shopping-cart"></i> Add to Cart'}</button>` : ''}
+                            ${normalizedRole === 'customer' ? `<button class="purchase-btn" data-post-id="${post._id}" data-post-price="${post.price}" data-post-description="${post.description.replace(/"/g, '&quot;')}" style="flex:1;background:#28a745;color:#fff;border:none;margin-left:0.5rem;padding:0.6rem;border-radius:5px;cursor:pointer;"><i class="fa fa-bolt"></i> Purchase Now</button>` : ''}
+                            ${normalizedRole === 'ceo' && post.author?.id === userId ? `<button class="edit-post-btn" data-post-id="${post._id}" style="flex:1;background:#ffc107;color:#000;border:none;margin-left:0.5rem;padding:0.6rem;border-radius:5px;cursor:pointer;">Edit Post</button>` : ''}
+                            ${normalizedRole === 'ceo' && post.author?.id === userId ? `<button class="delete-post-btn" data-post-id="${post._id}" style="flex:1;background:#dc3545;color:white;border:none;margin-left:0.5rem;padding:0.6rem;border-radius:5px;cursor:pointer;"><i class="fa fa-trash"></i> Delete</button>` : ''}
                         </div>
                     </div>
                     <div class="comments-section" id="comments-${post._id}" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid #eee;">
@@ -524,7 +524,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (addPostBtn) {
         addPostBtn.addEventListener('click', function() {
             // Check if user is CEO (only CEOs can create posts)
-            if (userRole !== 'CEO') {
+            if (normalizedRole !== 'ceo') {
                 showPopup('Only CEOs can create product posts.', false);
                 return;
             }
@@ -741,7 +741,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Update cart badge with number of items (only for customers)
     // const cartBtn = document.getElementById('cart-btn');
     // const cartBadge = document.getElementById('cart-badge');
-    if (userRole === 'customer') {
+    if (normalizedRole === 'customer') {
         const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
         if (cartItems.length > 0) {
             cartBadge.textContent = cartItems.length;
@@ -757,7 +757,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     } else {
         // Hide cart button for CEOs
-        if (userRole==='CEOs') {
+        if (normalizedRole === 'ceo') {
             cartBtn.style.display = 'none';
         }
     }

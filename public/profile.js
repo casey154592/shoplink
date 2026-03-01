@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Only show stats for customers
-        if (user.role === 'customer') {
+        if (user.role && user.role.toLowerCase() === 'customer') {
             const statsSection = document.createElement('div');
             statsSection.id = 'transaction-stats';
             statsSection.innerHTML = `
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
             profileContainer.appendChild(statsSection);
-        } else if (user.role === 'CEO') {
+        } else if (user.role && user.role.toLowerCase() === 'ceo') {
             // For CEOs, show their customer count
             const ceoStatsSection = document.createElement('div');
             ceoStatsSection.id = 'ceo-stats';

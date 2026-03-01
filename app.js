@@ -78,14 +78,48 @@ app.use((err, req, res, next) => {
 });
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/shoplink', {
-  serverSelectionTimeoutMS: 60000,
-  socketTimeoutMS: 60000,
-  connectTimeoutMS: 60000,
-  retryWrites: true
-})
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+const primaryUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/shoplink';
+const fallbackUri = process.env.MONGODB_FALLBACK_URI || 'mongodb://localhost:27017/shoplink';
+
+async function connectWithFallback() {
+  try {
+    await mongoose.connect(primaryUri, {
+      serverSelectionTimeoutMS: 60000,
+      socketTimeoutMS: 60000,
+      connectTimeoutMS: 60000,
+      retryWrites: true
+    });
+    console.log('MongoDB connected (primary)');
+  } catch (err) {
+    console.error('MongoDB primary connection error:', err && err.message ? err.message : err);
+
+    // Detect SRV DNS resolution failures (common with `mongodb+srv://` when DNS can't resolve)
+    const isSrvDnsError = err && (err.code === 'ESERVFAIL' || (err.message && err.message.includes('querySrv')));
+
+    if (isSrvDnsError && primaryUri.startsWith('mongodb+srv://')) {
+      console.warn('SRV DNS lookup failed for the Atlas connection string. This often indicates a local DNS/network issue or blocked DNS queries.');
+      console.warn('Attempting fallback MongoDB URI:', fallbackUri);
+      try {
+        await mongoose.connect(fallbackUri, {
+          serverSelectionTimeoutMS: 60000,
+          socketTimeoutMS: 60000,
+          connectTimeoutMS: 60000,
+          retryWrites: true
+        });
+        console.log('MongoDB connected (fallback)');
+        return;
+      } catch (err2) {
+        console.error('Fallback MongoDB connection also failed:', err2 && err2.message ? err2.message : err2);
+      }
+    }
+
+    // If we reach here, both primary (or non-SRV) attempts failed — exit so the problem is visible.
+    console.error('Unable to connect to MongoDB. Please check your network, DNS, and MONGODB_URI in your .env.');
+    process.exit(1);
+  }
+}
+
+connectWithFallback();
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

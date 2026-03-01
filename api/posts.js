@@ -16,6 +16,9 @@ async function auth(req, res, next) {
         const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
         const decoded = jwt.verify(token, JWT_SECRET);
         req.user = await UserModel.findById(decoded.id);
+        if (req.user && req.user.role) {
+            req.user.normalizedRole = req.user.role.toLowerCase();
+        }
         next();
     } catch (err) {
         res.status(401).json({ message: 'Invalid token' });
@@ -48,7 +51,7 @@ router.post('/', auth, upload.array('media', 10), async (req, res) => {
         if (!req.user) {
             return res.status(401).json({ message: 'Authentication required' });
         }
-        if (req.user.role !== 'CEO') {
+        if (req.user.normalizedRole !== 'ceo') {
             return res.status(403).json({ message: 'Only CEOs can create posts' });
         }
 
@@ -150,7 +153,7 @@ router.get('/', async (req, res) => {
 // Follow/Unfollow a CEO
 router.post('/follow/:ceoId', auth, async (req, res) => {
     try {
-        if (req.user.role !== 'customer') {
+        if (req.user.normalizedRole !== 'customer') {
             return res.status(403).json({ message: 'Only customers can follow CEOs' });
         }
 
@@ -159,7 +162,7 @@ router.post('/follow/:ceoId', auth, async (req, res) => {
 
         // Check if CEO exists
         const ceo = await UserModel.findById(ceoId);
-        if (!ceo || ceo.role !== 'CEO') {
+        if (!ceo || (ceo.role ? ceo.role.toLowerCase() !== 'ceo' : true)) {
             return res.status(404).json({ message: 'CEO not found' });
         }
 

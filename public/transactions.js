@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     const user = JSON.parse(localStorage.getItem('user'));
     const token = user?.token;
+    const userRole = user?.role;
+    const normalizedRole = userRole ? userRole.toLowerCase() : '';
 
     // Check if user is authenticated
     if (!user || !token) {
@@ -92,9 +94,9 @@ document.addEventListener('DOMContentLoaded', async function() {
 
             let actionButtons = '';
 
-            if (user.role === 'customer' && transaction.status === 'pending') {
+            if (normalizedRole === 'customer' && transaction.status === 'pending') {
                 actionButtons = `<button class="btn btn-danger cancel-transaction" data-id="${transaction._id}">Cancel</button>`;
-            } else if (user.role === 'CEO') {
+            } else if (normalizedRole === 'ceo') {
                 if (transaction.status === 'pending') {
                     actionButtons = `<button class="btn btn-success accept-transaction" data-id="${transaction._id}">Accept</button>
                                     <button class="btn btn-danger reject-transaction" data-id="${transaction._id}">Reject</button>`;
@@ -104,8 +106,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                 }
             }
 
-            const otherParty = user.role === 'customer' ? transaction.ceoId : transaction.customerId;
-            const otherPartyName = user.role === 'customer' ? (otherParty.brandName || otherParty.username) : otherParty.username;
+            const otherParty = normalizedRole === 'customer' ? transaction.ceoId : transaction.customerId;
+            const otherPartyName = normalizedRole === 'customer' ? (otherParty.brandName || otherParty.username) : otherParty.username;
 
             return `
                 <div class="transaction-card">
@@ -115,7 +117,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                                 <img src="${otherParty.profilePictureUrl || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(otherPartyName)}" alt="Avatar" class="party-avatar">
                                 <div>
                                     <strong>${otherPartyName}</strong>
-                                    <div>${user.role === 'customer' ? 'CEO' : 'Customer'}</div>
+                                    <div>${normalizedRole === 'customer' ? 'CEO' : 'Customer'}</div>
                                 </div>
                             </div>
                         </div>
@@ -221,7 +223,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Load posts for transaction creation (customers only)
     async function loadPostsForTransaction() {
-        if (user.role !== 'customer') return;
+        if (normalizedRole !== 'customer') return;
 
         try {
             const response = await fetch('/api/posts', {
@@ -294,7 +296,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     // Add "Create Transaction" button for customers
-    if (user.role === 'customer') {
+    if (normalizedRole === 'customer') {
         const header = document.querySelector('.transactions-header');
         const createBtn = document.createElement('button');
         createBtn.className = 'btn btn-primary';

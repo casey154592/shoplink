@@ -14,6 +14,9 @@ async function auth(req, res, next) {
         const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
         const decoded = jwt.verify(token, JWT_SECRET);
         req.user = await UserModel.findById(decoded.id);
+        if (req.user && req.user.role) {
+            req.user.normalizedRole = req.user.role.toLowerCase();
+        }
         next();
     } catch (err) {
         res.status(401).json({ message: 'Invalid token' });
@@ -23,8 +26,8 @@ async function auth(req, res, next) {
 // Create a new transaction (customer initiates)
 router.post('/', auth, async (req, res) => {
     try {
-        if (req.user.role !== 'customer') {
-            return res.status(403).json({ message: 'Only customers can initiate transactions' });
+        if (req.user.normalizedRole !== 'customer') {
+            return res.status(403).json({ message: 'Only customers can create transactions' });
         }
 
         const { postId, amount, description, initialMessage } = req.body;
@@ -86,9 +89,9 @@ router.get('/', auth, async (req, res) => {
     try {
         let query = {};
         
-        if (req.user.role === 'customer') {
+        if (req.user.normalizedRole === 'customer') {
             query.customerId = req.user._id;
-        } else if (req.user.role === 'CEO') {
+        } else if (req.user.normalizedRole === 'ceo') {
             query.ceoId = req.user._id;
         }
 
@@ -271,7 +274,7 @@ router.get('/stats/:userId', auth, async (req, res) => {
         const userId = req.params.userId;
         
         // Check if user can view these stats
-        if (req.user._id.toString() !== userId && req.user.role !== 'admin') {
+        if (req.user._id.toString() !== userId && req.user.normalizedRole !== 'admin') {
             return res.status(403).json({ message: 'You can only view your own statistics' });
         }
 
@@ -281,9 +284,9 @@ router.get('/stats/:userId', auth, async (req, res) => {
         }
 
         let query = {};
-        if (user.role === 'customer') {
+        if (user.role && user.role.toLowerCase() === 'customer') {
             query.customerId = userId;
-        } else if (user.role === 'CEO') {
+        } else if (user.role && user.role.toLowerCase() === 'ceo') {
             query.ceoId = userId;
         }
 

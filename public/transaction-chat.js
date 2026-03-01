@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const token = user?.token;
     const userId = user?.id;
     const userRole = user?.role;
+    const normalizedRole = userRole ? userRole.toLowerCase() : ''; // for safe comparisons
 
     // Get transaction ID from URL
     const params = new URLSearchParams(window.location.search);
@@ -53,12 +54,12 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
 
             transaction = await response.json();
-            otherParty = userRole === 'customer' ? transaction.ceoId : transaction.customerId;
+            otherParty = normalizedRole === 'customer' ? transaction.ceoId : transaction.customerId;
 
             // Update header
             document.getElementById('other-avatar').src = otherParty.profilePictureUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(otherParty.username)}`;
             document.getElementById('other-name').textContent = otherParty.username;
-            document.getElementById('other-role').textContent = userRole === 'customer' ? 'CEO' : 'Customer';
+            document.getElementById('other-role').textContent = normalizedRole === 'customer' ? 'CEO' : 'Customer';
             
             // Update status badge
             const statusBadge = document.getElementById('status-badge');
@@ -173,7 +174,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         const actionsSection = document.getElementById('actions-section');
         const actionsContainer = document.getElementById('transaction-actions');
 
-        if (userRole === 'customer') {
+        if (normalizedRole === 'customer') {
             // Customer can only cancel pending transactions
             if (transaction.status === 'pending') {
                 actionsContainer.innerHTML = `
@@ -187,7 +188,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                     }
                 });
             }
-        } else if (userRole === 'CEO') {
+        } else if (normalizedRole === 'ceo') {
             // CEO can accept, reject, complete, or fail
             if (transaction.status === 'pending') {
                 actionsContainer.innerHTML = `
