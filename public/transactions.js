@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 if (response.ok) {
                     const result = await response.json();
                     showPopup(result.message || 'Transaction created successfully');
-                    document.getElementById('transaction-modal').style.display = 'none';
+                    document.getElementById('transaction-modal')?.classList.remove('open');
                     transactionForm.reset();
                     loadTransactions();
                     loadTransactionStats();
@@ -291,7 +291,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     if (modalClose) {
         modalClose.addEventListener('click', function() {
-            modal.style.display = 'none';
+            modal.classList.remove('open');
         });
     }
 
@@ -304,7 +304,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         createBtn.style.marginTop = '1rem';
         createBtn.addEventListener('click', function() {
             loadPostsForTransaction();
-            modal.style.display = 'block';
+            modal.classList.add('open');
         });
         header.appendChild(createBtn);
     }

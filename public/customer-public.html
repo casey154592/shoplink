@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Feed - Shoplink</title>
+    <title>Customer Profile - Shoplink</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="images/shoplink favicon.png">
     <style>
@@ -41,9 +41,9 @@
             color: #7b2ff2;
             letter-spacing: 1.5px;
             text-shadow: 0 2px 8px rgba(123,47,242,0.08);
-            /* add subtle gradient effect to give logo feel */
             background: linear-gradient(90deg, #7b2ff2, #f357a8);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
         }
@@ -79,7 +79,6 @@
             align-items: center;
             justify-content: center;
         }
-        /* grid layout for multiple media items */
         .media-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -91,7 +90,6 @@
             border-radius: 8px;
             object-fit: cover;
         }
-        /* videos should also fit nicely */
         .media-grid video {
             max-width: 100%;
             border-radius: 8px;
@@ -155,7 +153,7 @@
             display: flex;
             flex-direction: column;
             gap: 1.2rem;
-            overflow-y: auto; /* <-- Make menu scrollable */
+            overflow-y: auto;
         }
         .side-menu.active {
             left: 0;
@@ -223,89 +221,141 @@
         }
         #feed-posts {
             width: 100%;
-            max-width: 600px;
+            max-width: 1200px;
             margin: 2rem auto 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 0 1rem;
         }
-        .feed-post-card {
+        /* Customer profile styles */
+        #customer-profile {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .customer-profile-container {
             background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(123,47,242,0.07);
-            margin: 1rem 0;
-            padding: 1rem 1.2rem;
-            position: relative;
-            transition: box-shadow 0.2s, transform 0.2s;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px rgba(123,47,242,0.10);
+            padding: 2rem;
+            margin: 2rem 1rem;
+            max-width: 100%;
         }
-        .feed-post-card:hover {
-            box-shadow: 0 6px 24px rgba(123,47,242,0.13);
-            transform: translateY(-2px) scale(1.01);
-        }
-        .feed-post-header {
+        .customer-profile-header {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #f9f6ff;
         }
-        .feed-post-avatar {
-            width: 44px;
-            height: 44px;
+        .customer-profile-pic {
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             object-fit: cover;
-            margin-right: 0.9rem;
-            border: 2px solid #7b2ff2;
-            background: #f5f5f5;
+            border: 4px solid #28a745;
         }
-        .feed-post-username {
-            font-weight: 600;
-            color: #7b2ff2;
-            font-size: 1.08rem;
-            display: block;
+        .customer-profile-info {
+            flex: 1;
         }
-        .feed-post-date {
-            font-size: 0.92rem;
-            color: #888;
-            margin-left: 2px;
-            display: block;
+        .customer-profile-info h2 {
+            color: #28a745;
+            margin: 0 0 0.5rem 0;
+            font-size: 1.8rem;
         }
-        .feed-post-content {
-            font-size: 1.08rem;
-            color: #333;
-            margin-bottom: 0.7rem;
-            margin-left: 0.2rem;
+        .customer-profile-username {
+            color: #666;
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 500;
         }
-        .feed-post-video {
-            width: 100%;
-            max-height: 320px;
+        .customer-profile-bio {
+            background: #f0fdf4;
+            border-left: 4px solid #28a745;
+            padding: 1.2rem;
             border-radius: 8px;
-            margin-top: 0.5rem;
-            background: #000;
+            margin-bottom: 1.5rem;
+        }
+        .customer-profile-bio p {
+            color: #333;
+            margin: 0;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        .customer-profile-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-item {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 1.5px solid #28a745;
+        }
+        .stat-number {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #28a745;
+            margin-bottom: 0.5rem;
+        }
+        .stat-label {
+            display: block;
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
         }
         /* Product Card Styles */
         .product-card {
             background: #fff;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(123,47,242,0.07);
-            margin: 1rem 0;
-            padding: 1rem 1.2rem;
             display: flex;
             flex-direction: column;
             transition: box-shadow 0.2s, transform 0.2s;
+            overflow: hidden;
         }
         .product-card:hover {
             box-shadow: 0 6px 24px rgba(123,47,242,0.13);
-            transform: translateY(-2px) scale(1.01);
+            transform: translateY(-4px);
+        }
+        .product-card-header {
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid #eee;
         }
         .product-img {
             width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin-bottom: 0.8rem;
+            height: 200px;
+            border-radius: 0;
+            object-fit: cover;
+            margin-bottom: 0;
+        }
+        .media-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0;
+            margin: 0;
+        }
+        .media-grid img,
+        .media-grid video {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 0;
         }
         .product-info {
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
+            padding: 1rem 1.2rem;
         }
         .product-price {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: #7b2ff2;
         }
@@ -313,34 +363,21 @@
             background: #f357a8;
             color: #fff;
             border-radius: 5px;
-            padding: 2px 6px;
-            font-size: 0.9rem;
+            padding: 3px 8px;
+            font-size: 0.85rem;
             margin-left: 0.5rem;
+            display: inline-block;
         }
         .product-desc {
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: #333;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
         }
-        .add-to-cart-btn {
-            background: #7b2ff2;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            padding: 0.7rem 1.2rem;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.2s;
-        }
-        .add-to-cart-btn:hover {
-            background: #f357a8;
-            transform: translateY(-2px);
-        }
-        /* CEO Profile Section Styles */
         .ceo-profile-section {
             display: flex;
             align-items: center;
             gap: 0.8rem;
-            margin-bottom: 0.5rem;
         }
         .circular-avatar {
             width: 40px;
@@ -364,85 +401,19 @@
             font-size: 0.9rem;
             margin-left: 8px;
         }
-        .product-ceo-role {
-            font-size: 0.85rem;
-            color: #666;
-        }
-        .card-actions {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
         .post-actions {
             display: flex;
             gap: 0.5rem;
             align-items: center;
             margin-top: 1rem;
             justify-content: flex-start;
-        }
-        .edit-post-btn {
-            background: #ffc107;
-            color: #000;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background 0.2s;
-        }
-        .edit-post-btn:hover {
-            background: #e0a800;
-        }
-        .post-stats {
-            display: flex;
-            gap: 1.5rem;
-            margin: 0.8rem 0;
-            padding: 0.8rem 0;
-            border-top: 1px solid #eee;
-            border-bottom: 1px solid #eee;
-            font-size: 0.95rem;
-            color: #666;
-        }
-        .like-count, .comment-count {
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .like-count:hover, .comment-count:hover {
-            color: #7b2ff2;
-        }
-        .like-btn, .comment-btn {
-            transition: all 0.2s;
-        }
-        .like-btn:hover, .comment-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .like-btn:active, .comment-btn:active {
-            transform: translateY(0);
-        }
-        .comments-section {
-            border-top: 1px solid #eee;
-            padding: 1rem;
-            background: #f9f6ff;
-            border-radius: 8px;
-        }
-        .comments-list {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-bottom: 1rem;
-        }
-        .comment-input {
-            font-family: 'Segoe UI', Arial, sans-serif;
-        }
-        .comment-input:focus {
-            outline: none;
-            border-color: #7b2ff2;
-            box-shadow: 0 0 8px rgba(123, 47, 242, 0.2);
+            flex-wrap: wrap;
         }
         .card-actions {
             display: flex;
             gap: 0.5rem;
             align-items: center;
+            flex-wrap: wrap;
         }
         .follow-ceo-btn, .delete-post-btn {
             padding: 0.4rem 0.8rem;
@@ -470,16 +441,31 @@
             }
             #feed-posts {
                 max-width: 98vw;
+                grid-template-columns: 1fr;
+                gap: 1rem;
             }
-            /* ensure header title scales nicely on small narrow devices */
+            .customer-profile-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            .customer-profile-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            .customer-profile-pic {
+                width: 100px;
+                height: 100px;
+            }
+            .customer-profile-stats {
+                grid-template-columns: 1fr 1fr;
+            }
             .feed-header h1 {
                 font-size: 1.8rem;
                 letter-spacing: 1px;
-                /* remove gradient fill on tiny screens for readability */
                 background: none;
                 -webkit-text-fill-color: #7b2ff2;
             }
-            /* shrink image logo on small screens */
             .shoplinklogo img {
                 height: 32px;
             }
@@ -533,57 +519,6 @@
         }
         .post-modal-close:hover {
             background: #f9f6ff;
-        }
-        .post-form-group {
-            margin-bottom: 1.2rem;
-        }
-        .post-form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #7b2ff2;
-            font-weight: 500;
-        }
-        .post-form-group textarea {
-            width: 100%;
-            padding: 0.8rem;
-            border: 1.5px solid #7b2ff2;
-            border-radius: 8px;
-            font-size: 1rem;
-            resize: vertical;
-            min-height: 100px;
-            box-sizing: border-box;
-        }
-        .post-form-group input[type="file"] {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1.5px solid #7b2ff2;
-            border-radius: 8px;
-            background: #f9f6ff;
-        }
-        .post-submit-btn {
-            background: linear-gradient(90deg, #7b2ff2 0%, #f357a8 100%);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 0.8rem 2rem;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            transition: background 0.2s;
-        }
-        .post-submit-btn:hover {
-            background: linear-gradient(90deg, #f357a8 0%, #7b2ff2 100%);
-        }
-        .post-submit-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        .post-loading {
-            text-align: center;
-            color: #7b2ff2;
-            margin-top: 1rem;
-            font-weight: 500;
         }
         @keyframes fadeIn {
             from { opacity: 0; }
@@ -672,42 +607,8 @@
                 <input type="text" id="search-bar" class="search-bar" placeholder="Search posts or users..." style="display:none;">
             </div>
         </div>
+        <div id="customer-profile"></div>
         <div id="feed-posts"></div>
-    </div>
-
-    <!-- Post Creation Modal -->
-    <div id="post-modal" class="post-modal">
-        <div class="post-modal-content">
-            <div class="post-modal-header">
-                <h2>Create New Post</h2>
-                <button id="post-modal-close" class="post-modal-close" title="Close">&times;</button>
-            </div>
-            <form id="create-post-form" enctype="multipart/form-data">
-                <div class="post-form-group">
-                    <label for="post-description">Description</label>
-                    <textarea id="post-description" name="description" placeholder="Describe your product..." required></textarea>
-                </div>
-                <div class="post-form-group">
-                    <label for="post-price">Price ($)</label>
-                    <input type="number" id="post-price" name="price" placeholder="0.00" step="0.01" min="0" required>
-                </div>
-                <div class="post-form-group">
-                    <label for="post-negotiable">Negotiable</label>
-                    <select id="post-negotiable" name="negotiable">
-                        <option value="false">Not Negotiable</option>
-                        <option value="on">Negotiable</option>
-                    </select>
-                </div>
-                <div class="post-form-group">
-                    <label for="post-image">Product Media</label>
-                    <!-- allow multiple images/videos -->
-                    <input type="file" id="post-image" name="media" accept="image/*,video/*" multiple required>
-                    <small>You can select several images or videos.</small>
-                </div>
-                <button type="submit" id="post-submit-btn" class="post-submit-btn">Create Post</button>
-                <div id="post-loading" class="post-loading" style="display:none;">Creating post...</div>
-            </form>
-        </div>
     </div>
 
     <!-- Popup message -->

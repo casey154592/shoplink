@@ -268,6 +268,25 @@ router.post('/:id/messages', auth, async (req, res) => {
         res.status(500).json({ message: 'Failed to send message', error: err.message });
     }
 });
+
+// Get customer's completed transactions (public endpoint for customer profile)
+router.get('/customer/:customerId', async (req, res) => {
+    try {
+        const { customerId } = req.params;
+        
+        // Get completed transactions for this customer
+        const transactions = await Transaction.find({ customerId, status: 'completed' })
+            .populate('postId', 'description price media ceoId')
+            .populate('ceoId', 'username brandName profilePictureUrl')
+            .sort({ createdAt: -1 });
+
+        res.json(transactions);
+    } catch (err) {
+        console.error('Get customer transactions error:', err);
+        res.status(500).json({ message: 'Failed to fetch customer transactions', error: err.message });
+    }
+});
+
 // Get transaction statistics for a user
 router.get('/stats/:userId', auth, async (req, res) => {
     try {

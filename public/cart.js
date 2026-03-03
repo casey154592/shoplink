@@ -19,30 +19,25 @@ document.addEventListener('DOMContentLoaded', async function() {
         return;
     }
 
-    // helper to get first media element
-    function getFirstMediaPost(post) {
-        if (post.media && post.media.length > 0) {
-            return post.media[0];
-        }
-        // fallback to legacy imageUrl
-        if (post.imageUrl) {
-            return { url: post.imageUrl, type: 'image' };
-        }
-        return null;
+    // helper to build a grid of media items
+    function getMediaHtml(mediaArray) {
+        if (!mediaArray || mediaArray.length === 0) return '';
+        let html = '<div class="cart-item-media">';
+        mediaArray.forEach(item => {
+            if (item.type === 'video') {
+                html += `<video controls><source src="${item.url}" type="video/mp4">Your browser does not support video.</video>`;
+            } else {
+                html += `<img src="${item.url}" alt="Product Image">`;
+            }
+        });
+        html += '</div>';
+        return html;
     }
 
     cartItemsDiv.innerHTML = cartPosts.map(post => {
-        const media = getFirstMediaPost(post);
-        let mediaHtml = '';
-        if (media) {
-            if (media.type === 'video') {
-                mediaHtml = `<video controls class="cart-item-img"><source src="${media.url}" type="video/mp4">Your browser does not support video.</video>`;
-            } else {
-                mediaHtml = `<img src="${media.url}" alt="Product Image" class="cart-item-img">`;
-            }
-        }
+        const mediaHtml = getMediaHtml(post.media || (post.imageUrl ? [{ url: post.imageUrl, type: 'image' }] : []));
         return `
-        <div class="cart-item">
+        <div class="cart-item" data-ceo-id="${post.ceoId}" data-post-id="${post._id}">
             ${mediaHtml}
             <div class="cart-item-details">
                 <div class="cart-item-title">${post.description?.slice(0, 30) || 'Product'}</div>
@@ -56,15 +51,27 @@ document.addEventListener('DOMContentLoaded', async function() {
                 <button class="cart-buy-btn" data-ceo-id="${post.ceoId}" data-post-id="${post._id}">Buy</button>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 
     // Buy button logic
     document.querySelectorAll('.cart-buy-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
             const ceoId = this.dataset.ceoId;
             const postId = this.dataset.postId;
             // Redirect to ceo-public.html with ceoId and postId as query params
             window.location.href = `ceo-public.html?ceoId=${encodeURIComponent(ceoId)}&postId=${encodeURIComponent(postId)}`;
+        });
+    });
+
+    // Click whole cart item to view CEO profile + product
+    document.querySelectorAll('.cart-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const ceoId = this.dataset.ceoId;
+            const postId = this.dataset.postId;
+            if (ceoId && postId) {
+                window.location.href = `ceo-public.html?ceoId=${encodeURIComponent(ceoId)}&postId=${encodeURIComponent(postId)}`;
+            }
         });
     });
 });

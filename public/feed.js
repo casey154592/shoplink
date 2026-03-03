@@ -29,12 +29,21 @@ document.addEventListener('DOMContentLoaded', async function() {
     const notifIcon = document.getElementById('notification-icon');
     const cartBadge = document.getElementById('cart-badge');
 
-    // Check if user is authenticated, if not redirect to login
+    // parse query parameters for ceo-public and customer-public page filtering
+    const params = new URLSearchParams(window.location.search);
+    const ceoIdParam = params.get('ceoId');
+    const customerIdParam = params.get('customerId');
+    const postIdParam = params.get('postId');
+
+    // Check if user is authenticated; if not, only force login on main feed
     if (!user || !token) {
-        localStorage.removeItem('user');
-        localStorage.removeItem('cart');
-        window.location.href = 'login.html';
-        return;
+        if (!ceoIdParam && !customerIdParam) {
+            localStorage.removeItem('user');
+            localStorage.removeItem('cart');
+            window.location.href = 'login.html';
+            return;
+        }
+        // otherwise continue as guest (interactions will be disabled later)
     }
 
     // Initialize cart badge
@@ -48,7 +57,159 @@ document.addEventListener('DOMContentLoaded', async function() {
     const cartBtn = document.getElementById('cart-btn');
     const addPostBtn = document.getElementById('add-post-btn');
     const sideMenu = document.getElementById('side-menu');
+
+    // if user is not authenticated hide interactive header icons
+    if (!user || !token) {
+        if (cartBtn) cartBtn.style.display = 'none';
+        if (addPostBtn) addPostBtn.style.display = 'none';
+        if (notifIcon) notifIcon.style.display = 'none';
+    }
+
     const normalizedRole = userRole ? userRole.toLowerCase() : '';
+    
+    // function to fetch and render CEO profile when ceoId query is present
+    async function loadCEOProfile() {
+        if (!ceoIdParam) return;
+        const profileDiv = document.getElementById('ceo-profile');
+        if (!profileDiv) return;
+        try {
+            const res = await fetch(`/api/users/${encodeURIComponent(ceoIdParam)}`);
+            if (!res.ok) throw new Error('Unable to fetch CEO profile');
+            const ceo = await res.json();
+            document.title = `${ceo.brandName || ceo.username} - Shoplink`;
+            
+            // Count CEO's posts
+            const allPosts = await fetch('/api/posts');
+            const posts = await allPosts.json();
+            const ceoPosts = posts.filter(p => {
+                if (p.author && p.author.id && p.author.id.toString() === ceoIdParam.toString()) return true;
+                if (p.ceoId) {
+                    const ceoIdStr = typeof p.ceoId === 'string' ? p.ceoId : (p.ceoId._id ? p.ceoId._id.toString() : p.ceoId.toString());
+                    if (ceoIdStr === ceoIdParam.toString()) return true;
+                }
+                return false;
+            });
+            const postCount = ceoPosts.length;
+            
+            const isFollowing = user && ceo.followers && ceo.followers.some(id => {
+                const idStr = typeof id === 'string' ? id : (id._id ? id._id.toString() : id.toString());
+                return idStr === userId.toString();
+            });
+            
+            profileDiv.innerHTML = `
+                <div class="ceo-profile-container">
+                    <div class="ceo-profile-header">
+                        <img src="${ceo.profilePictureUrl || './default-avatar.png'}" class="ceo-profile-pic" alt="CEO Picture">
+                        <div class="ceo-profile-info">
+                            <h2>${ceo.brandName || ceo.username}</h2>
+                            <p class="ceo-profile-username">@${ceo.username}</p>
+                        </div>
+                    </div>
+                    <div class="ceo-profile-bio">
+                        <p>${ceo.bio || 'No bio yet'}</p>
+                    </div>
+                    <div class="ceo-profile-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">${postCount}</span>
+                            <span class="stat-label">Posts</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">${ceo.followers ? ceo.followers.length : 0}</span>
+                            <span class="stat-label">Followers</span>
+                        </div>
+                    </div>
+                    ${user && normalizedRole === 'customer' ? `<button id="follow-button" class="follow-ceo-btn" data-ceo-id="${ceoIdParam}" data-following="${isFollowing}"><i class="fa fa-${isFollowing ? 'check' : 'user-plus'}"></i> ${isFollowing ? 'Unfollow' : 'Follow'}</button>` : ''}
+                </div>
+            `;
+            
+            if (user && normalizedRole === 'customer') {
+                const btn = document.getElementById('follow-button');
+                if (btn) {
+                    btn.addEventListener('click', async function() {
+                        try {
+                            const res2 = await fetch(`/api/posts/follow/${ceoIdParam}`, {
+                                method: 'POST',
+                                headers: { Authorization: `Bearer ${token}` }
+                            });
+                            if (res2.ok) {
+                                const isNowFollowing = btn.getAttribute('data-following') === 'true';
+                                if (isNowFollowing) {
+                                    showPopup('Successfully unfollowed CEO!', true);
+                                    btn.setAttribute('data-following', 'false');
+                                    btn.innerHTML = '<i class="fa fa-user-plus"></i> Follow';
+                                    btn.style.background = '#7b2ff2';
+                                } else {
+                                    showPopup('Successfully followed CEO!', true);
+                                    btn.setAttribute('data-following', 'true');
+                                    btn.innerHTML = '<i class="fa fa-check"></i> Unfollow';
+                                    btn.style.background = '#7b2ff2';
+                                }
+                            } else {
+                                const err = await res2.json();
+                                showPopup(err.message || 'Failed to follow/unfollow CEO.', false);
+                            }
+                        } catch (err) {
+                            console.error('Follow error:', err);
+                            showPopup('Error following CEO', false);
+                        }
+                    });
+                }
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+    
+    // function to fetch and render Customer profile when customerId query is present
+    async function loadCustomerProfile() {
+        if (!customerIdParam) return;
+        const profileDiv = document.getElementById('customer-profile');
+        if (!profileDiv) return;
+        try {
+            const res = await fetch(`/api/users/${encodeURIComponent(customerIdParam)}`);
+            if (!res.ok) throw new Error('Unable to fetch customer profile');
+            const customer = await res.json();
+            document.title = `${customer.username} - Shoplink`;
+            
+            // Fetch transactions for this customer to get purchased products
+            const transRes = await fetch(`/api/transactions/customer/${encodeURIComponent(customerIdParam)}`);
+            const transactions = transRes.ok ? await transRes.json() : [];
+            
+            // Transactions are already filtered for completed status by the API
+            const purchasedProductCount = transactions.length;
+            
+            // Get unique CEOs followed (count unique ceoIds from transactions)
+            const uniqueCEOs = new Set(transactions.map(t => t.ceoId?._id || t.ceoId).filter(id => id));
+            const followedCEOCount = uniqueCEOs.size;
+            
+            profileDiv.innerHTML = `
+                <div class="customer-profile-container">
+                    <div class="customer-profile-header">
+                        <img src="${customer.profilePictureUrl || './default-avatar.png'}" class="customer-profile-pic" alt="Customer Picture">
+                        <div class="customer-profile-info">
+                            <h2>${customer.username}</h2>
+                            <p class="customer-profile-username">@${customer.username}</p>
+                        </div>
+                    </div>
+                    <div class="customer-profile-bio">
+                        <p>${customer.bio || 'No bio yet'}</p>
+                    </div>
+                    <div class="customer-profile-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">${purchasedProductCount}</span>
+                            <span class="stat-label">Products Purchased</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">${followedCEOCount}</span>
+                            <span class="stat-label">CEOs Followed</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } catch (err) {
+            console.error(err);
+        }
+    }
     
     if (normalizedRole === 'ceo') {
         if (cartBtn) cartBtn.style.display = 'none';
@@ -69,7 +230,40 @@ document.addEventListener('DOMContentLoaded', async function() {
             headers: token ? { Authorization: `Bearer ${token}` } : {}
         });
         const posts = await res.json();
-        if (!Array.isArray(posts) || posts.length === 0) {
+        // apply filtering based on query parameters
+        let displayPosts = posts;
+        if (ceoIdParam) {
+            displayPosts = posts.filter(p => {
+                // Compare both author.id and ceoId
+                if (p.author && p.author.id && p.author.id.toString() === ceoIdParam.toString()) return true;
+                if (p.ceoId) {
+                    const ceoIdStr = typeof p.ceoId === 'string' ? p.ceoId : (p.ceoId._id ? p.ceoId._id.toString() : p.ceoId.toString());
+                    if (ceoIdStr === ceoIdParam.toString()) return true;
+                }
+                return false;
+            });
+        }
+        if (customerIdParam) {
+            // Fetch transactions for this customer
+            try {
+                const transRes = await fetch(`/api/transactions/customer/${encodeURIComponent(customerIdParam)}`);
+                const transactions = transRes.ok ? await transRes.json() : [];
+                // Transactions are already filtered for completed status by the API
+                const postIds = transactions.map(t => {
+                    if (!t.postId) return null;
+                    return typeof t.postId === 'string' ? t.postId : (t.postId._id ? t.postId._id.toString() : t.postId.toString());
+                }).filter(id => id);
+                // Display only posts that match purchased products
+                displayPosts = posts.filter(p => postIds.includes(p._id.toString()) || postIds.includes(p._id));
+            } catch (err) {
+                console.error('Error fetching customer transactions:', err);
+                displayPosts = [];
+            }
+        }
+        if (postIdParam) {
+            displayPosts = displayPosts.filter(p => p._id === postIdParam);
+        }
+        if (!Array.isArray(displayPosts) || displayPosts.length === 0) {
             feedPosts.innerHTML = '<p class="no-posts">No posts yet.</p>';
             return;
         }
@@ -78,30 +272,39 @@ document.addEventListener('DOMContentLoaded', async function() {
         // helper to build media HTML
         function getMediaHtml(mediaArray) {
             if (!mediaArray || mediaArray.length === 0) return '';
-            let html = '';
+            let html = '<div class="media-grid">';
             mediaArray.forEach(item => {
                 if (item.type === 'video') {
-                    html += `<video controls class="product-img" style="max-width:100%;height:auto;margin-bottom:0.5rem;"><source src="${item.url}" type="video/mp4">Your browser does not support video.</video>`;
+                    html += `<video controls class="product-img"><source src="${item.url}" type="video/mp4">Your browser does not support video.</video>`;
                 } else {
                     html += `<img src="${item.url}" alt="Product Image" class="product-img">`;
                 }
             });
+            html += '</div>';
             return html;
         }
-        posts.forEach(post => {
-            const isFollowing = (post.author?.followers || []).includes(userId);
-            const showFollowBtn = normalizedRole === 'customer' && post.author && post.author.id !== userId && !isFollowing;
+        displayPosts.forEach(post => {
+            const isFollowing = (post.author?.followers || []).some(id => {
+                const idStr = typeof id === 'string' ? id : (id._id ? id._id.toString() : id.toString());
+                return idStr === userId.toString();
+            });
+            const authorIdStr = post.author?.id?.toString ? post.author.id.toString() : post.author?.id;
+            const showFollowBtn = normalizedRole === 'customer' && post.author && authorIdStr !== userId?.toString() && !isFollowing;
             const followBtnHtml = showFollowBtn
                 ? `<button class="follow-ceo-btn" data-ceo-id="${post.author.id}"><i class="fa fa-user-plus"></i> Add Ceo</button>`
                 : '';
             const negotiableBadge = post.negotiable
                 ? `<span class="negotiable-badge">Negotiable</span>`
                 : `<span class="negotiable-badge" style="background:#888;">Not Negotiable</span>`;
-            const isOwnPost = normalizedRole === 'ceo' && post.author && post.author.id === userId;
+            const isOwnPost = normalizedRole === 'ceo' && post.author && authorIdStr === userId?.toString();
             const deleteBtnHtml = isOwnPost
                 ? `<button class="delete-post-btn" data-post-id="${post._id}" style="background:#dc3545;color:white;border:none;padding:5px 10px;border-radius:4px;margin-left:10px;"><i class="fa fa-trash"></i> Delete</button>`
                 : '';
-            const isLiked = (post.likes || []).some(like => like.toString ? like.toString() === userId : like === userId);
+            const isLiked = (post.likes || []).some(like => {
+                const likeIdStr = typeof like === 'string' ? like : (like._id ? like._id.toString() : like.toString());
+                const userIdStr = userId?.toString ? userId.toString() : userId;
+                return likeIdStr === userIdStr;
+            });
             const likeCount = post.likes ? post.likes.length : 0;
             const commentCount = post.comments ? post.comments.length : 0;
             const inCart = cart.includes(post._id);
@@ -503,12 +706,25 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
     if (notifIcon) {
-        notifIcon.addEventListener('click', function() {
+        notifIcon.addEventListener('click', async function() {
+            // Mark all notifications as read on click, then navigate
+            try {
+                await fetch('/api/notifications/read-all', {
+                    method: 'PUT',
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+            } catch (err) {
+                console.error('Error marking all notifications read:', err);
+            }
+            // hide badge immediately
+            if (notifBadge) notifBadge.style.display = 'none';
             window.location.href = 'notifications.html';
         });
     }
 
     // Initial load
+    if (ceoIdParam) await loadCEOProfile();
+    if (customerIdParam) await loadCustomerProfile();
     loadFeed();
     if (notifBadge) loadNotifications();
 

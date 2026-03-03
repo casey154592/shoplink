@@ -13,6 +13,13 @@ document.addEventListener('DOMContentLoaded', async function() {
             const notifications = data.notifications;
             if (!notifications || notifications.length === 0) {
                 empty.style.display = 'block';
+                // also mark all read on empty (safety)
+                try {
+                    await fetch('/api/notifications/read-all', {
+                        method: 'PUT',
+                        headers: token ? { Authorization: `Bearer ${token}` } : {}
+                    });
+                } catch (e) {}
                 return;
             }
             notifications.forEach(n => {
@@ -42,6 +49,15 @@ document.addEventListener('DOMContentLoaded', async function() {
                 });
                 list.appendChild(li);
             });
+            // After rendering, mark all remaining unread notifications as read
+            try {
+                await fetch('/api/notifications/read-all', {
+                    method: 'PUT',
+                    headers: token ? { Authorization: `Bearer ${token}` } : {}
+                });
+            } catch (e) {
+                console.error('Error marking all notifications read on page load:', e);
+            }
         } catch (err) {
             empty.textContent = 'Could not load notifications.';
             empty.style.display = 'block';
