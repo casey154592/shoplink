@@ -8,7 +8,7 @@ const postSchema = new mongoose.Schema({
         type: { type: String, enum: ['image', 'video'], required: true }
     }],
     // keep old field for backwards compatibility; will be migrated on the fly if needed
-    url: { type: String },
+    imageUrl: { type: String },
     price: { type: Number, required: true },
     description: { type: String, required: true },
     negotiable: { type: Boolean, default: false },
